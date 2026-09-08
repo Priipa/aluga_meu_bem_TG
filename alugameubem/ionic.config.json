@@ -1,0 +1,7 @@
+{
+  "name": "Aluga meu bem",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
