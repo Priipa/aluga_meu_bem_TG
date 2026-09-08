@@ -1,0 +1,103 @@
+# Specifies intentionally untracked files to ignore when using Git
+# http://git-scm.com/docs/gitignore
+
+*~
+*.sw[mnpcod]
+.tmp
+*.tmp
+*.tmp.*
+UserInterfaceState.xcuserstate
+$RECYCLE.BIN/
+
+*.log
+log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Ionic / Cordova / Capacitor
+/.ionic
+/www
+/platforms
+/plugins
+.sourcemaps
+.versions
+
+# Capacitor native build artifacts (keep android/ and ios/ source)
+/android/app/build
+/android/.gradle
+/android/local.properties
+/android/captures
+/ios/Pods
+/ios/DerivedData
+/ios/App/Pods
+*.xcworkspace/xcuserdata
+*.xcodeproj/xcuserdata
+*.xcuserstate
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+*.tsbuildinfo
+
+# Angular
+/.angular
+/.angular/cache
+.sass-cache/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+credentials.json
+service-account*.json
+
+# Tests and coverage
+/coverage
+/cypress/videos
+/cypress/screenshots
+/playwright-report
+/test-results
+testem.log
+/libpeerconnection.log
+/connect.lock
+/typings
+
+# Nx
+/.nx
+/.nx/cache
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-project
+*.sublime-workspace
+.cursor/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Stitch signed download URLs (keep HTML and PNG)
+/.stitch/designs/*.json
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
