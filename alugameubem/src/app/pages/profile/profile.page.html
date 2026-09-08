@@ -1,0 +1,30 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <div class="hero-card">
+      <img class="avatar" src="https://i.pravatar.cc/120?img=68" alt="Foto do perfil" />
+      <div>
+        <h2>{{ profile?.name || 'Visitante' }}</h2>
+        <p>{{ profile?.city || 'São Paulo' }}</p>
+      </div>
+    </div>
+
+    <ion-button expand="block" class="btn-pill btn-lime" routerLink="/tabs/publish">
+      Publicar um item
+    </ion-button>
+
+    <div class="menu">
+      <p>E-mail: {{ profile?.email || 'não informado' }}</p>
+      <p>Alugue, compartilhe e economize com a vizinhança.</p>
+    </div>
+
+    <ion-button expand="block" fill="outline" class="btn-pill btn-outlined" (click)="logout()">
+      Sair
+    </ion-button>
+  </div>
+</ion-content>

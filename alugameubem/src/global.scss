@@ -1,0 +1,124 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+
+* {
+  font-family: var(--ion-font-family);
+}
+
+ion-content {
+  --background: var(--amb-bg);
+}
+
+h1,
+h2,
+h3,
+.headline {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--amb-ink);
+}
+
+p {
+  color: var(--amb-muted);
+}
+
+.page-pad {
+  padding: 16px 20px 32px;
+}
+
+.btn-pill {
+  --border-radius: var(--amb-radius-pill);
+  --box-shadow: none;
+  height: 52px;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.btn-lime {
+  --background: var(--amb-primary);
+  --background-activated: #3ed011;
+  --color: #1c2118;
+  --border-width: 0;
+}
+
+.btn-outlined {
+  --background: #ffffff;
+  --background-activated: #eef2ea;
+  --color: var(--amb-ink);
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--amb-border);
+}
+
+.btn-solid {
+  --background: var(--amb-secondary);
+  --background-activated: #297814;
+  --color: #ffffff;
+}
+
+.section-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--amb-secondary);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--amb-radius-pill);
+  background: #e9fad9;
+  color: var(--amb-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field {
+  --background: #ffffff;
+  --border-radius: 14px;
+  --highlight-color-focused: var(--amb-secondary);
+  --padding-start: 14px;
+  --padding-end: 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--amb-border);
+  border-radius: 14px;
+}
+
+.search-field {
+  --background: #ffffff;
+  --border-radius: 14px;
+  --box-shadow: none;
+  --placeholder-color: var(--amb-neutral);
+}
+
+ion-tab-bar {
+  --background: #ffffff;
+  border: 0;
+  height: 64px;
+  padding: 0;
+}
+
+ion-tab-button {
+  --color: var(--amb-neutral);
+  --color-selected: var(--amb-secondary);
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}

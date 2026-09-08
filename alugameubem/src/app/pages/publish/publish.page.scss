@@ -1,0 +1,16 @@
+ion-list {
+  background: transparent;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.photo {
+  height: 140px;
+  border: 1.5px dashed var(--amb-secondary);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--amb-secondary);
+  font-weight: 700;
+  background: #eef8e4;
+}

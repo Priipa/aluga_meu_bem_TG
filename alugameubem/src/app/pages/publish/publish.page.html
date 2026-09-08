@@ -1,0 +1,45 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Publicar item</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    @if (published()) {
+      <h2>Item enviado</h2>
+      <p>Seu anúncio vai aparecer na lista da comunidade.</p>
+    } @else {
+      <p>Anuncie o que está parado em casa e ganhe uma renda extra.</p>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="photo">Adicionar fotos</div>
+        <ion-list lines="none">
+          <ion-item class="field">
+            <ion-input label="Título" labelPlacement="stacked" formControlName="title"></ion-input>
+          </ion-item>
+          <ion-item class="field">
+            <ion-select label="Categoria" labelPlacement="stacked" formControlName="category">
+              <ion-select-option value="Casa">Casa</ion-select-option>
+              <ion-select-option value="Eletrônicos">Eletrônicos</ion-select-option>
+              <ion-select-option value="Esporte">Esporte</ion-select-option>
+              <ion-select-option value="Ferramentas">Ferramentas</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item class="field">
+            <ion-input label="Valor por dia (R$)" labelPlacement="stacked" type="number" formControlName="price"></ion-input>
+          </ion-item>
+          <ion-item class="field">
+            <ion-input label="Bairro" labelPlacement="stacked" formControlName="neighborhood"></ion-input>
+          </ion-item>
+          <ion-item class="field">
+            <ion-textarea label="Descrição" labelPlacement="stacked" rows="4" formControlName="description"></ion-textarea>
+          </ion-item>
+        </ion-list>
+        <ion-button expand="block" type="submit" class="btn-pill btn-lime">Publicar</ion-button>
+      </form>
+    }
+  </div>
+</ion-content>

@@ -1,0 +1,22 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Favoritos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <div class="grid">
+      @for (item of items(); track item.id) {
+        <a class="card" [routerLink]="['/item', item.id]">
+          <img [src]="item.image" [alt]="item.title" />
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.location }}</p>
+          <strong>{{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+        </a>
+      } @empty {
+        <p class="empty">Toque no coração dos itens para guardá-los aqui.</p>
+      }
+    </div>
+  </div>
+</ion-content>

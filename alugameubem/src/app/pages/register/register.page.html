@@ -1,0 +1,58 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/welcome"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Criar Conta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form class="page-pad" [formGroup]="form" (ngSubmit)="submit()">
+    <h2 class="headline">Bem-vindo(a)!</h2>
+    <p class="lead">Vamos começar. Por favor, preencha os detalhes abaixo.</p>
+
+    <label class="lab" for="name">Nome Completo</label>
+    <input id="name" class="box" formControlName="name" placeholder="Digite seu nome completo" autocomplete="name" />
+
+    <label class="lab" for="email">Email</label>
+    <input id="email" class="box" type="email" formControlName="email" placeholder="Digite seu email" autocomplete="email" />
+
+    <label class="lab" for="password">Senha</label>
+    <div class="box box-icon">
+      <input
+        id="password"
+        [type]="showPassword() ? 'text' : 'password'"
+        formControlName="password"
+        placeholder="Crie uma senha"
+        autocomplete="new-password"
+      />
+      <button type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'">
+        <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+      </button>
+    </div>
+
+    <label class="lab" for="cpf">CPF</label>
+    <input id="cpf" class="box" formControlName="cpf" placeholder="000.000.000-00" inputmode="numeric" (input)="maskCpf($event)" />
+
+    <label class="lab" for="phone">Telefone</label>
+    <input id="phone" class="box" formControlName="phone" placeholder="(00) 00000-0000" inputmode="tel" (input)="maskPhone($event)" />
+
+    <div class="notice">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <p>Para a segurança de todos, pediremos que você verifique sua identidade após criar sua conta.</p>
+    </div>
+
+    <ion-button expand="block" type="submit" class="btn-pill btn-solid">Criar Conta</ion-button>
+
+    <p class="switch">
+      Já tem uma conta?
+      <a routerLink="/login">Faça login</a>
+    </p>
+
+    <p class="legal">
+      Ao se inscrever, você concorda com nossos
+      <u>Termos de Serviço</u> e <u>Política de Privacidade</u>.
+    </p>
+  </form>
+</ion-content>

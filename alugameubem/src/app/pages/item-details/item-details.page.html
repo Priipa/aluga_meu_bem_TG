@@ -1,0 +1,118 @@
+@if (item(); as item) {
+  <ion-content [fullscreen]="true">
+    <div class="hero">
+      <img [src]="item.images[imageIndex()]" [alt]="item.title" />
+      <ion-header class="overlay">
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+          </ion-buttons>
+          <ion-buttons slot="end">
+            <ion-button>
+              <ion-icon slot="icon-only" name="share-outline"></ion-icon>
+            </ion-button>
+            <ion-button>
+              <ion-icon slot="icon-only" name="heart-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <div class="dots">
+        @for (img of item.images; track img; let i = $index) {
+          <button type="button" [class.on]="i === imageIndex()" (click)="setImage(i)"></button>
+        }
+      </div>
+    </div>
+
+    <div class="body">
+      <h1>{{ item.title }}</h1>
+      <div class="chips">
+        @for (cat of item.categories; track cat) {
+          <span class="chip">{{ cat }}</span>
+        }
+      </div>
+      <p class="rating">
+        <ion-icon name="star"></ion-icon>
+        {{ item.rating }}/5 ({{ item.reviewCount }} avaliações)
+      </p>
+
+      <h2 class="section-title">Descrição</h2>
+      @for (block of item.description; track block.title) {
+        <h3 class="sub">{{ block.title }}</h3>
+        <p>{{ block.body }}</p>
+      }
+
+      <h2 class="section-title">Locador</h2>
+      <div class="owner">
+        <img class="avatar" [src]="item.owner.avatar" [alt]="item.owner.name" />
+        <div>
+          <strong>{{ item.owner.name }}</strong>
+          <p>{{ item.owner.since }}</p>
+        </div>
+        <ion-button fill="outline" size="small" class="btn-pill" [routerLink]="['/chat', item.id]">
+          Chamar
+        </ion-button>
+      </div>
+
+      <h2 class="section-title">Condições de aluguel</h2>
+      <ul class="conditions">
+        @for (rule of item.conditions; track rule) {
+          <li>
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span>{{ rule }}</span>
+          </li>
+        }
+      </ul>
+
+      <h2 class="section-title">Localização para retirada e devolução</h2>
+      <p class="place">
+        <ion-icon name="location-outline"></ion-icon>
+        {{ item.neighborhood }}, {{ item.city }}
+      </p>
+      <div class="map">
+        <span>Mapa da região</span>
+        <button type="button">Ver no mapa</button>
+      </div>
+
+      <h2 class="section-title">Disponibilidade</h2>
+      <div class="cal">
+        <strong>Setembro 2026</strong>
+        <div class="week">
+          @for (d of days; track $index) {
+            <span>{{ d }}</span>
+          }
+        </div>
+        <div class="grid">
+          @for (cell of calendar; track $index) {
+            <span [class.sel]="cell.selected">{{ cell.day || '' }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="reviews-head">
+        <h2 class="section-title">Avaliações de locatários ({{ item.reviewCount }})</h2>
+        <span>Ver todas</span>
+      </div>
+      @for (review of item.reviews; track review.name) {
+        <article class="review">
+          <img class="avatar" [src]="review.avatar" [alt]="review.name" />
+          <div>
+            <strong>{{ review.name }}</strong>
+            <p>em {{ review.date }}</p>
+            <p>{{ review.text }}</p>
+          </div>
+        </article>
+      }
+
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div class="bar">
+      <div>
+        <span>Total</span>
+        <strong>{{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+      </div>
+      <ion-button class="btn-pill btn-lime" (click)="rent()">Alugar agora</ion-button>
+    </div>
+  </ion-content>
+}

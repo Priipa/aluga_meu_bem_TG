@@ -1,0 +1,24 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Mensagens</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <div class="list">
+      @for (row of conversations; track row.item.id) {
+        <a class="row" [routerLink]="['/chat', row.item.id]">
+          <img [src]="row.item.owner.avatar" [alt]="row.item.owner.name" />
+          <div>
+            <h3>{{ row.item.owner.name }}</h3>
+            <p>{{ row.last.text }}</p>
+          </div>
+          <span>{{ row.last.time }}</span>
+        </a>
+      } @empty {
+        <p>Nenhuma conversa ainda.</p>
+      }
+    </div>
+  </div>
+</ion-content>

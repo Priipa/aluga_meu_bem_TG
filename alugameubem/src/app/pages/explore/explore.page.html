@@ -1,0 +1,59 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/welcome"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Itens para alugar</ion-title>
+    <ion-buttons slot="end">
+      <button type="button" class="map-btn" (click)="showMap.set(!showMap())" aria-label="Ver no mapa">
+        <ion-icon name="map-outline"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <ion-searchbar
+      class="search-field"
+      placeholder="Procure por qualquer coisa..."
+      animated="true"
+      [debounce]="150"
+      (ionInput)="query.set($event.detail.value ?? '')"
+    ></ion-searchbar>
+
+    <div class="chips" role="list">
+      @for (filter of filters; track filter.key) {
+        <button
+          type="button"
+          class="chip-btn"
+          [class.on]="activeFilter() === filter.key"
+          (click)="setFilter(filter.key)"
+        >
+          {{ filter.label }}
+          <ion-icon name="chevron-down"></ion-icon>
+        </button>
+      }
+    </div>
+
+    @if (showMap()) {
+      <div class="map-panel">Mapa dos itens próximos</div>
+    }
+
+    <div class="grid">
+      @for (item of items(); track item.id) {
+        <a class="card" [routerLink]="['/item', item.id]">
+          <div class="photo">
+            <img [src]="item.image" [alt]="item.title" />
+            <button type="button" class="fav" (click)="toggleFav(item.id, $event)" [attr.aria-label]="'Favoritar ' + item.title">
+              <ion-icon [name]="isFav(item.id) ? 'heart' : 'heart-outline'"></ion-icon>
+            </button>
+          </div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.location }}</p>
+          <strong>{{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+        </a>
+      }
+    </div>
+  </div>
+</ion-content>

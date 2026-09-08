@@ -1,0 +1,38 @@
+<ion-content [fullscreen]="true">
+  <div class="welcome">
+    <header class="brand">
+      <img class="brand-logo" src="assets/logo.png" alt="Aluga, meu bem!" width="50" height="50" />
+      <h1>Aluga, meu bem!</h1>
+    </header>
+
+    <button type="button" class="hero" (click)="next()" aria-label="Próximo slide">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFmW2Rm2jgY1FVOC-69qEnOAe-6pebGpzKEWNEKxwK4vcaxPfew9HJwHI7eGLtwE0N1G4cyKf4__vYCc7vFBZ2TJCX893cVDqQ24tTGXOnfZo3DmRasAOvG6OqnFoM8rNLnoWHLr0ojRUiabeHzEtEz5mm85lfdxVZV30pii6UEjqKkrwgQZU4nRih19GLNQ4Ajx5UH89BxspbMhpjJwGiIflraKaO1Q8UAtYQ4GFeB46NWmhukCjN2PodxwkweWlr6eR2obn7kD8" alt="Pessoas compartilhando itens na comunidade" />
+    </button>
+
+    <section class="copy">
+      <h2>{{ slides[index()].title }}</h2>
+      <p>{{ slides[index()].text }}</p>
+    </section>
+
+    <div class="dots" role="tablist" aria-label="Passos da introdução">
+      @for (slide of slides; track slide.title; let i = $index) {
+        <button
+          type="button"
+          class="dot"
+          [class.dot-on]="i === index()"
+          (click)="goTo(i)"
+          [attr.aria-label]="'Slide ' + (i + 1)"
+        ></button>
+      }
+    </div>
+
+    <div class="actions">
+      <ion-button expand="block" class="btn-pill btn-lime" routerLink="/register">
+        Criar Conta
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="btn-pill btn-outlined" routerLink="/login">
+        Já tenho uma conta
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

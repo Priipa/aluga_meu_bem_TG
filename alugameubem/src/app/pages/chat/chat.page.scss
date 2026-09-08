@@ -1,0 +1,56 @@
+.thread {
+  padding: 16px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bubble {
+  max-width: 78%;
+  background: #fff;
+  border-radius: 16px 16px 16px 4px;
+  padding: 10px 12px;
+  align-self: flex-start;
+}
+
+.mine {
+  align-self: flex-end;
+  background: var(--amb-primary);
+  border-radius: 16px 16px 4px 16px;
+}
+
+.bubble p {
+  margin: 0;
+  color: var(--amb-ink);
+}
+
+.bubble span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--amb-muted);
+}
+
+.composer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: var(--amb-bg);
+}
+
+.composer ion-input {
+  --background: #fff;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --border-radius: 999px;
+  border: 1px solid var(--amb-border);
+  border-radius: 999px;
+}
+
+.composer ion-button {
+  margin: 0;
+  width: 48px;
+  height: 48px;
+}

@@ -1,0 +1,55 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Pagamento</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  @if (paid()) {
+    <div class="page-pad done">
+      <div class="badge">Pronto</div>
+      <h2>Aluguel confirmado</h2>
+      <p>O locador vai receber o pedido e combinamos a retirada.</p>
+      <ion-button expand="block" class="btn-pill btn-lime" (click)="goHome()">Voltar aos itens</ion-button>
+    </div>
+  } @else if (item(); as item) {
+    <div class="page-pad">
+      <div class="summary">
+        <img [src]="item.image" [alt]="item.title" />
+        <div>
+          <h2>{{ item.title }}</h2>
+          <p>10 a 16 de setembro · {{ days }} dias</p>
+        </div>
+      </div>
+
+      <h3 class="section-title">Resumo</h3>
+      <ul class="bill">
+        <li><span>{{ days }} dias × {{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</span><strong>{{ total() | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</strong></li>
+        <li><span>Caução reembolsável</span><strong>{{ item.deposit | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</strong></li>
+      </ul>
+
+      <h3 class="section-title">Forma de pagamento</h3>
+      <ion-radio-group [value]="method()" (ionChange)="method.set($event.detail.value)">
+        <ion-list lines="none">
+          <ion-item class="pay">
+            <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+            <ion-label>Pix</ion-label>
+            <ion-radio value="pix"></ion-radio>
+          </ion-item>
+          <ion-item class="pay">
+            <ion-icon name="card-outline" slot="start"></ion-icon>
+            <ion-label>Cartão</ion-label>
+            <ion-radio value="card"></ion-radio>
+          </ion-item>
+        </ion-list>
+      </ion-radio-group>
+
+      <ion-button expand="block" class="btn-pill btn-lime" (click)="confirm()">
+        Pagar {{ total() | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}
+      </ion-button>
+    </div>
+  }
+</ion-content>

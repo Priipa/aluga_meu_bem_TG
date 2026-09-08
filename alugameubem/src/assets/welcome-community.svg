@@ -1,0 +1,20 @@
+<svg viewBox="0 0 360 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pessoas compartilhando itens na comunidade">
+  <rect width="360" height="240" rx="28" fill="#E8F8D8"/>
+  <ellipse cx="90" cy="168" rx="70" ry="28" fill="#D4F0B8"/>
+  <ellipse cx="250" cy="176" rx="88" ry="32" fill="#CFF5A8"/>
+  <circle cx="286" cy="62" r="28" fill="#F7E7A8"/>
+  <rect x="48" y="92" width="54" height="78" rx="10" fill="#2F8916"/>
+  <rect x="56" y="80" width="38" height="16" rx="4" fill="#46EC13"/>
+  <circle cx="75" cy="70" r="12" fill="#F3C7A6"/>
+  <rect x="132" y="118" width="44" height="52" rx="10" fill="#FF8BD0"/>
+  <circle cx="154" cy="104" r="12" fill="#E8B089"/>
+  <rect x="148" y="128" width="22" height="16" rx="3" fill="#fff"/>
+  <circle cx="230" cy="150" r="22" fill="#46EC13"/>
+  <circle cx="230" cy="118" r="13" fill="#D9A078"/>
+  <rect x="218" y="140" width="24" height="36" rx="8" fill="#2F8916"/>
+  <circle cx="214" cy="188" r="10" fill="#1C2118"/>
+  <circle cx="246" cy="188" r="10" fill="#1C2118"/>
+  <rect x="288" y="126" width="36" height="50" rx="10" fill="#707A69"/>
+  <circle cx="306" cy="112" r="12" fill="#C98B63"/>
+  <rect x="298" y="140" width="16" height="22" rx="3" fill="#FFBBD0"/>
+</svg>

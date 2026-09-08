@@ -1,0 +1,28 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ item()?.owner?.name || 'Chat' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="thread">
+    @for (msg of messages(); track $index) {
+      <div class="bubble" [class.mine]="msg.fromMe">
+        <p>{{ msg.text }}</p>
+        <span>{{ msg.time }}</span>
+      </div>
+    }
+  </div>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="composer">
+    <ion-input [(ngModel)]="draft" placeholder="Escreva uma mensagem" (keyup.enter)="sendMessage()"></ion-input>
+    <ion-button class="btn-pill btn-lime" (click)="sendMessage()">
+      <ion-icon slot="icon-only" name="send"></ion-icon>
+    </ion-button>
+  </div>
+</ion-footer>
