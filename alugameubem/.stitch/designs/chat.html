@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chat - Maria Souza</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#FF7F50", // Coral
+              "background-light": "#F8F9FA",
+              "background-dark": "#121212",
+              "text-light": "#212529",
+              "text-dark": "#E8E6E3",
+              "bubble-receiver-light": "#E9ECEF",
+              "bubble-receiver-dark": "#2A2A2A",
+              "bubble-sender-text": "#FFFFFF"
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: {
+                "DEFAULT": "0.75rem", 
+                "lg": "1rem", 
+                "xl": "1.5rem", 
+                "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="flex flex-col h-full">
+<header class="sticky top-0 z-20 flex flex-col bg-background-light dark:bg-background-dark shadow-sm">
+<div class="flex items-center justify-between h-16 px-4">
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-10 h-10 bg-center bg-no-repeat bg-cover rounded-full shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCnT6Acpah6nAFD4tE0AlMRLJO-3KwIoFXK0vkwG8yt4zlAc2znpq3e0iXO6VwUw1qvtOh3-v6pc3cvZPMFlNLPvq-RJJVs79NwA57Z-0LW4JJaB96bGWJXJhehPXUEcTUsORAJtAzNRyZaHbHJKDDWDJ9qGlu9FeDlwlEromw0FF9hDpuMnMD3f5ZEuO1XMZBfZT5Y6EwCv8wrXp6msdWYCdzRaKLYhjDEBA5FyY-mTilh-2KR5njGQx_kJoGYMX_5xC8zO71bttU');"></div>
+<span class="absolute bottom-0 right-0 block w-2.5 h-2.5 bg-green-500 border-2 border-background-light dark:border-background-dark rounded-full"></span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-lg font-bold leading-tight">Maria S.</h1>
+<p class="text-xs text-gray-500 dark:text-gray-400">Online</p>
+</div>
+</div>
+</div>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 border-t border-b border-gray-200 cursor-pointer dark:border-gray-700 bg-gray-50 dark:bg-black/20 hover:bg-gray-100 dark:hover:bg-gray-800/60">
+<div class="w-12 h-12 bg-center bg-no-repeat bg-cover rounded-lg shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1XZ7kQvwLuXql37QE-fw4Jsjlo1kWyx4xvuoJ54IJIC-zYCAyBdpiXOT9TfJJXteFGS6dRxZ2Rkxka5tvO54gb6ws2JfjxrxPVh1kcyzUCSr1DlL0X6Bxy6ZxJ0bQ91w_OJtKgmWFDb6TaIQ6OxoeXT8RGsW9vUv7OfGkAeFvGSpXO5QqgjjOPk7p3Kmtj8Yj07F7NYgm9-RUm-G9CeeUqLhEt1PMlb7u-7qIG_MJO1WVvGOcun3y9QbwNT3YLSjWldVOG0TENlA');"></div>
+<div class="flex-1 min-w-0">
+<p class="font-semibold truncate">Câmera Polaroid Vintage</p>
+<p class="text-sm text-primary">R$ 50,00 / dia</p>
+</div>
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500">chevron_right</span>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 space-y-4">
+<div class="flex items-end gap-2.5 max-w-xs sm:max-w-md">
+<div class="w-8 h-8 bg-center bg-no-repeat bg-cover rounded-full shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC4KXc9aejiFnmIwubOAKdW-IH2EGJi9DgiaW5Wnc8kX0mpCEzHk7Ts6GSlW5AcroCI7fEd11_ACQPuDCudaWX_SykzdMQRuW9Dw9sCg9Q3u2kHDZqorTRrdATwREtTFN5wL_Bw7kERMZmtYOpon2of-YK2S5b1dHqiYAN_vtR2IFE99_8mDIzXX9f5K_W9qIHXh1sX4bBHnDHfD3bV4sPfwf7y63nIbseXCTWiHOZ6w_PKXsEz0iax-kWQJLeV7qt3pRRTmIyelOY');"></div>
+<div class="flex flex-col items-start gap-1">
+<div class="p-3 rounded-lg rounded-bl-none bg-bubble-receiver-light dark:bg-bubble-receiver-dark">
+<p class="text-base leading-snug">Oi! A câmera Polaroid ainda está disponível para este final de semana?</p>
+</div>
+<p class="px-1 text-xs text-gray-500 dark:text-gray-400">10:30</p>
+</div>
+</div>
+<div class="flex items-end justify-end gap-2.5">
+<div class="flex flex-col items-end gap-1 max-w-xs sm:max-w-md">
+<div class="p-3 text-white rounded-lg rounded-br-none bg-primary text-bubble-sender-text">
+<p class="text-base leading-snug">Olá! Sim, está disponível. Acabei de aceitar sua solicitação.</p>
+</div>
+<div class="flex items-center gap-1.5 px-1">
+<p class="text-xs text-gray-500 dark:text-gray-400">10:31</p>
+<span class="text-base material-symbols-outlined text-blue-500" style="font-variation-settings: 'FILL' 1, 'wght' 500;">done_all</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-center my-4">
+<span class="px-3 py-1 text-xs font-medium text-gray-600 rounded-full bg-gray-200/70 dark:bg-gray-700/50 dark:text-gray-300">Hoje</span>
+</div>
+<div class="flex items-end gap-2.5 max-w-xs sm:max-w-md">
+<div class="w-8 h-8 bg-center bg-no-repeat bg-cover rounded-full shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDnUkLpvLkLJeYpeCN5RVqnsbHBSfVa7na9usD8JEwlC1ogbFXF9Kc4bZZmc-0HPtn8umLoDsn12BVtgqecVX7MIvEZNxWR-fijC0TNjL_5N_OoES_lYE9pFSVrrdyRr9JXjE-S99TuXR488dp0dy6_jnYnc9iwntRDr88bqUkUYMPrMtn9QbgclhwSE303avUGKUWFuj-gmJ0Db1rh-7Oc3bmGUmi7KFHpaOkxBTdA4evyoakcC7KnXsJsqQ0W03zkifqA1Q3kvnU');"></div>
+<div class="flex flex-col items-start gap-1">
+<div class="p-3 rounded-lg rounded-bl-none bg-bubble-receiver-light dark:bg-bubble-receiver-dark">
+<p class="text-base leading-snug">Perfeito! Qual o melhor horário para retirar no sábado?</p>
+</div>
+<p class="px-1 text-xs text-gray-500 dark:text-gray-400">10:32</p>
+</div>
+</div>
+<div class="flex items-end justify-end gap-2.5">
+<div class="flex flex-col items-end gap-1 max-w-xs sm:max-w-md">
+<div class="p-3 text-white rounded-lg rounded-br-none bg-primary text-bubble-sender-text">
+<p class="text-base leading-snug">Estarei disponível pela manhã, entre 9h e 12h. Fica bom pra você?</p>
+</div>
+<div class="flex items-center gap-1.5 px-1">
+<p class="text-xs text-gray-500 dark:text-gray-400">10:33</p>
+<span class="text-base material-symbols-outlined text-gray-400">done_all</span>
+</div>
+</div>
+</div>
+</main>
+<footer class="sticky bottom-0 z-20 flex items-center gap-2 px-3 py-2 bg-background-light dark:bg-background-dark border-t border-gray-200 dark:border-gray-700">
+<button class="flex items-center justify-center w-10 h-10 rounded-full shrink-0 hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="text-2xl material-symbols-outlined text-text-light dark:text-text-dark">add</span>
+</button>
+<div class="relative flex-1">
+<input class="w-full py-2.5 pl-4 pr-12 text-base border-gray-300 rounded-full bg-bubble-receiver-light dark:bg-bubble-receiver-dark text-text-light dark:text-text-dark placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary focus:ring-primary dark:border-gray-600" placeholder="Digite uma mensagem..." type="text"/>
+</div>
+<button class="flex items-center justify-center w-10 h-10 text-white rounded-full shrink-0 bg-primary">
+<span class="text-2xl material-symbols-outlined">send</span>
+</button>
+</footer>
+</div>
+
+</body></html>

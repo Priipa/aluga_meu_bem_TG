@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aluga, meu bem! - Items</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#00897B", // Teal
+            "background-light": "#f6f8f6",
+            "background-dark": "#142210",
+            "text-light": "#111b0d",
+            "text-dark": "#f0fdf4",
+            "card-light": "#ffffff",
+            "card-dark": "#1f331b",
+            "chip-light": "#e0f2f1", // Light Teal
+            "chip-dark": "#004d40", // Dark Teal
+          },
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-20 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm">
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<button class="flex items-center justify-center h-10 w-10 text-text-light dark:text-text-dark gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+</div>
+<h1 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em] text-center">Itens para alugar</h1>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 text-text-light dark:text-text-dark gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">map</span>
+</button>
+</div>
+</div>
+<div class="px-4 py-3">
+<div class="relative w-full">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-primary/80">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-full border-none bg-chip-light dark:bg-chip-dark px-12 py-3 text-base font-normal leading-normal text-text-light dark:text-text-dark placeholder:text-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="Procure por qualquer coisa..." value=""/>
+</div>
+</div>
+<div class="flex gap-2 p-4 pt-0 overflow-x-auto whitespace-nowrap">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary pl-4 pr-3 text-white">
+<p class="text-sm font-medium leading-normal">Categoria</p>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-chip-light dark:bg-chip-dark pl-4 pr-3 text-text-light dark:text-text-dark">
+<p class="text-sm font-medium leading-normal">Local</p>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-chip-light dark:bg-chip-dark pl-4 pr-3 text-text-light dark:text-text-dark">
+<p class="text-sm font-medium leading-normal">Preço</p>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-chip-light dark:bg-chip-dark pl-4 pr-3 text-text-light dark:text-text-dark">
+<p class="text-sm font-medium leading-normal">Disponível</p>
+</button>
+</div>
+</header>
+<main class="flex-1 px-4">
+<div class="grid grid-cols-2 gap-2 pb-24">
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Furadeira elétrica moderna sobre uma bancada." class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcuDcHNgQnz1p65D7VDhDAXYNk7eoK0dZnIQLsflT0bYJ-UMrzmBhM7QcLsAKE2HBcg78aNVL2_MnuzcY7yTWvq5dupvwBtsPa9h81tMxBq2JSui3rm9nIei2T-iRTSulHU4gW_bYQyFo3weNe08bHkSBASByBAhLmWhqODCwZMu52ncb6z96jiTrbXZjGUPmobxpkzZlswMgPgC59KUZVkJONhEcg-CNEw1YrU6jyFAavBv-Y1lI9sk0mBmjD6hcPrkYMFVwNXwM"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Furadeira Elétrica</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">Rio de Janeiro, RJ</p>
+<p class="text-base font-bold text-primary">R$15 / dia</p>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Kit de câmera profissional com várias lentes em uma superfície escura." class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq229ik14hBL9Pp8MFkzU1JUD66EDK-5_pgZ2VT2qYws0REGKNIzbnQkzWZfV8tTgpYomiPYurAxLmeRN0Lt65_rSMblIlOD8sWhmhHthjK1ECp_atxSQsppGwmWG4dfqmcftntzLfCYvaDc8w6F8ydlAszr1AW75bUBhT2AWJmDeNw4Z2UIdVsQtvNAMeUQjuVSyW02wf1WdwcDpSaLt_iDOILTkBJYx87pEEYr8Y7UHJxptphFG_q-SXyYHKBBSbuAimku45YpU"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Kit Câmera Profissional</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">São Paulo, SP</p>
+<p class="text-base font-bold text-primary">R$50 / dia</p>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Uma barraca de camping azul montada em uma floresta verde." class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvpHBE540sO_BZ-MRPRWGRQlO_1jTXIp5RKCNKxGjj7AqSKrGN9PhKySuTblWgwTPOpIfWkF1k6oYaZnlu53-uIzoZ7fwnJsvZoGBq2zwl2oFm7j4i0Gzw2KNXgYDuza-rOg8OLYkGWEVgw7NJp1OSjYK7aV3kZKYFDKHn-rAHGdFOYa-2FXKJ74PrsXTM_X2ey8C0N0iNcyBSQZu3I6iDpdcdvqkrU_MP5mIsMIsI2r05kpi7EMekn8wlxuit5hyAjSGSY8yzzoU"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Barraca (4 pessoas)</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">Belo Horizonte, MG</p>
+<p class="text-base font-bold text-primary">R$25 / dia</p>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Um violão acústico encostado em uma parede de tijolos." class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ2ijsQBA9TPNGC7UdWH0jtRW9vgue8b5S8-raY0DAHkqkZwPB3nztsYphcQKD7DXgp8SS93-KhaNE_L5xPdcgLYYTYsiRZwfNJJi5IhpYuQp4OYmJO_D59m41apxrbzJ0xzjhRH4tD6RzItw8v8BpfrB3D-JdcOnsUn1et-5OudWTTO_VnR5_j_0P8ZnTAIuj311XmxNGR0DGHT1hQD1aZjX1-A_zINIyQHWfuwfl7Ff3n_CV90FRbz2MnX1wYGKuToI4iiN5Z7M"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Violão Acústico</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">Salvador, BA</p>
+<p class="text-base font-bold text-primary">R$20 / dia</p>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Caixa de som bluetooth portátil" class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcuDcHNgQnz1p65D7VDhDAXYNk7eoK0dZnIQLsflT0bYJ-UMrzmBhM7QcLsAKE2HBcg78aNVL2_MnuzcY7yTWvq5dupvwBtsPa9h81tMxBq2JSui3rm9nIei2T-iRTSulHU4gW_bYQyFo3weNe08bHkSBASByBAhLmWhqODCwZMu52ncb6z96jiTrbXZjGUPmobxpkzZlswMgPgC59KUZVkJONhEcg-CNEw1YrU6jyFAavBv-Y1lI9sk0mBmjD6hcPrkYMFVwNXwM"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Caixa de Som Portátil</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">Curitiba, PR</p>
+<p class="text-base font-bold text-primary">R$30 / dia</p>
+</div>
+</div>
+<div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark overflow-hidden shadow-sm">
+<div class="relative w-full">
+<img alt="Projetor de vídeo em fundo neutro" class="aspect-square w-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq229ik14hBL9Pp8MFkzU1JUD66EDK-5_pgZ2VT2qYws0REGKNIzbnQkzWZfV8tTgpYomiPYurAxLmeRN0Lt65_rSMblIlOD8sWhmhHthjK1ECp_atxSQsppGwmWG4dfqmcftntzLfCYvaDc8w6F8ydlAszr1AW75bUBhT2AWJmDeNw4Z2UIdVsQtvNAMeUQjuVSyW02wf1WdwcDpSaLt_iDOILTkBJYx87pEEYr8Y7UHJxptphFG_q-SXyYHKBBSbuAimku45YpU"/>
+<button class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+<div class="flex w-full grow flex-col gap-1 p-3">
+<h3 class="text-sm font-bold leading-tight text-text-light dark:text-text-dark">Projetor Multimídia</h3>
+<p class="text-xs font-normal text-text-light/70 dark:text-text-dark/70">Recife, PE</p>
+<p class="text-base font-bold text-primary">R$45 / dia</p>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 z-20 h-20 bg-card-light/90 dark:bg-card-dark/90 backdrop-blur-sm border-t border-black/5 dark:border-white/5">
+<div class="flex h-full items-center justify-around px-2">
+<button class="flex flex-col items-center justify-center gap-1 text-primary w-20">
+<span class="material-symbols-outlined">home</span>
+<span class="text-xs font-bold">Início</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-text-light/60 dark:text-text-dark/60 w-20">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-xs font-medium">Mensagens</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-text-light/60 dark:text-text-dark/60 w-20">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-xs font-medium">Anunciar</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-text-light/60 dark:text-text-dark/60 w-20">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-xs font-medium">Favoritos</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 text-text-light/60 dark:text-text-dark/60 w-20">
+<span class="material-symbols-outlined">person</span>
+<span class="text-xs font-medium">Perfil</span>
+</button>
+</div>
+</nav>
+</div>
+
+</body></html>

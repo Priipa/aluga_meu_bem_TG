@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Criar Conta - Aluga, meu bem!</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": {
+              DEFAULT: "#00A99D", // Teal
+              light: "#E0F2F1" // Light teal for backgrounds
+            },
+            "background-light": "#f6f8f6",
+            "background-dark": "#142210",
+            "text-light": "#4A4A4A",
+            "text-dark": "#E0E0E0",
+            "border-light": "#D1D5DB",
+            "border-dark": "#4B5563",
+            "error": "#EF4444",
+            "success": "#22C55E"
+          },
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.75rem", // 12px
+            "lg": "1rem", // 16px
+            "xl": "1.5rem", // 24px
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
+<button aria-label="Voltar" class="text-text-light dark:text-text-dark flex size-10 shrink-0 items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h2 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-10">Criar Conta</h2>
+</div>
+<main class="flex-1 px-4 py-6">
+<h1 class="text-[#1F2937] dark:text-white tracking-tight text-[32px] font-bold leading-tight text-left">Bem-vindo(a)!</h1>
+<p class="text-text-light dark:text-text-dark text-base font-normal leading-normal pt-1 pb-8">Vamos começar. Por favor, preencha os detalhes abaixo.</p>
+<div class="space-y-5">
+<label class="flex flex-col">
+<p class="text-[#1F2937] dark:text-white text-base font-medium leading-normal pb-2">Nome Completo</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1F2937] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light/70 dark:placeholder:text-text-dark/70 px-4 text-base font-normal leading-normal" placeholder="Digite seu nome completo" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-[#1F2937] dark:text-white text-base font-medium leading-normal pb-2">Email</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1F2937] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light/70 dark:placeholder:text-text-dark/70 px-4 text-base font-normal leading-normal" placeholder="Digite seu email" type="email"/>
+</label>
+<label class="flex flex-col">
+<p class="text-[#1F2937] dark:text-white text-base font-medium leading-normal pb-2">Senha</p>
+<div class="relative flex items-center">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1F2937] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light/70 dark:placeholder:text-text-dark/70 px-4 pr-12 text-base font-normal leading-normal" placeholder="Crie uma senha" type="password"/>
+<button aria-label="Alternar visibilidade da senha" class="absolute right-0 mr-4 text-text-light dark:text-text-dark">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</label>
+<label class="flex flex-col">
+<p class="text-[#1F2937] dark:text-white text-base font-medium leading-normal pb-2">CPF</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1F2937] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light/70 dark:placeholder:text-text-dark/70 px-4 text-base font-normal leading-normal" placeholder="000.000.000-00" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-[#1F2937] dark:text-white text-base font-medium leading-normal pb-2">Telefone</p>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#1F2937] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark h-14 placeholder:text-text-light/70 dark:placeholder:text-text-dark/70 px-4 text-base font-normal leading-normal" placeholder="(00) 00000-0000" type="tel"/>
+</label>
+</div>
+<div class="mt-8 flex items-start gap-4 rounded-lg bg-primary-light dark:bg-primary/20 p-4">
+<div class="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/20 dark:bg-primary/30 mt-1">
+<span class="material-symbols-outlined text-primary dark:text-primary-light text-base">verified_user</span>
+</div>
+<p class="text-sm font-medium text-primary dark:text-primary-light">Para a segurança de todos, pediremos que você verifique sua identidade após criar sua conta.</p>
+</div>
+<div class="mt-8 space-y-4">
+<button class="flex w-full items-center justify-center rounded-full bg-primary h-14 text-white text-base font-bold leading-normal transition-opacity hover:opacity-90">Criar Conta</button>
+<p class="text-center text-sm text-text-light dark:text-text-dark">
+          Já tem uma conta? <a class="font-bold text-primary dark:text-primary-light hover:underline" href="#">Faça login</a>
+</p>
+</div>
+<p class="mt-12 px-4 text-center text-xs text-text-light/80 dark:text-text-dark/80">
+        Ao se inscrever, você concorda com nossos <a class="font-medium underline" href="#">Termos de Serviço</a> e <a class="font-medium underline" href="#">Política de Privacidade</a>.
+      </p>
+</main>
+</div>
+
+</body></html>
