@@ -384,10 +384,6 @@ export class CatalogService {
     ],
   };
 
-  list(): Item[] {
-    return this.items;
-  }
-
   find(id: string): Item | undefined {
     return this.items.find((item) => item.id === id);
   }
@@ -455,10 +451,6 @@ export class CatalogService {
   profile(): UserProfile | null {
     const raw = localStorage.getItem('amb.profile');
     return raw ? (JSON.parse(raw) as UserProfile) : null;
-  }
-
-  isLoggedIn(): boolean {
-    return localStorage.getItem('amb.loggedIn') === '1';
   }
 
   logout(): void {
