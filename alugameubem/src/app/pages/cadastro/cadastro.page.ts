@@ -16,9 +16,9 @@ import { eyeOffOutline, eyeOutline, shieldCheckmarkOutline } from 'ionicons/icon
 import { AutenticacaoService } from '../../core/autenticacao.service';
 
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.page.html',
-  styleUrls: ['./register.page.scss'],
+  selector: 'app-cadastro',
+  templateUrl: './cadastro.page.html',
+  styleUrls: ['./cadastro.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
@@ -32,7 +32,7 @@ import { AutenticacaoService } from '../../core/autenticacao.service';
     RouterLink,
   ],
 })
-export class RegisterPage {
+export class CadastroPage {
   private readonly fb = inject(FormBuilder);
   private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);

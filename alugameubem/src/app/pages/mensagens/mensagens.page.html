@@ -7,14 +7,14 @@
 <ion-content [fullscreen]="true">
   <div class="page-pad">
     <div class="list">
-      @for (row of conversations; track row.item.id) {
-        <a class="row" [routerLink]="['/chat', row.item.id]">
-          <img [src]="row.item.owner.avatar" [alt]="row.item.owner.name" />
+      @for (linha of conversas; track linha.item.id) {
+        <a class="row" [routerLink]="['/chat', linha.item.id]">
+          <img [src]="linha.item.owner.avatar" [alt]="linha.item.owner.name" />
           <div>
-            <h3>{{ row.item.owner.name }}</h3>
-            <p>{{ row.last.text }}</p>
+            <h3>{{ linha.item.owner.name }}</h3>
+            <p>{{ linha.ultima.text }}</p>
           </div>
-          <span>{{ row.last.time }}</span>
+          <span>{{ linha.ultima.time }}</span>
         </a>
       } @empty {
         <p>Nenhuma conversa ainda.</p>

@@ -14,7 +14,7 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { send } from 'ionicons/icons';
-import { CatalogService } from '../../core/catalog.service';
+import { CatalogoService } from '../../core/catalogo.service';
 import { ChatMessage } from '../../core/models';
 
 @Component({
@@ -36,16 +36,16 @@ import { ChatMessage } from '../../core/models';
   ],
 })
 export class ChatPage {
-  private readonly catalog = inject(CatalogService);
+  private readonly catalogo = inject(CatalogoService);
   readonly id = input.required<string>();
-  readonly item = computed(() => this.catalog.find(this.id()));
+  readonly item = computed(() => this.catalogo.find(this.id()));
   readonly messages = signal<ChatMessage[]>([]);
   draft = '';
 
   constructor() {
     addIcons({ send });
     effect(() => {
-      this.messages.set([...this.catalog.messagesFor(this.id())]);
+      this.messages.set([...this.catalogo.mensagensDe(this.id())]);
     });
   }
 

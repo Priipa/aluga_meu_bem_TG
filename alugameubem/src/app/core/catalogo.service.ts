@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ChatMessage, Item } from './models';
 
 @Injectable({ providedIn: 'root' })
-export class CatalogService {
+export class CatalogoService {
   private readonly items: Item[] = [
     {
       id: 'camera-dslr',
@@ -402,44 +402,44 @@ export class CatalogService {
     );
   }
 
-  conversations() {
+  conversas() {
     return Object.keys(this.chats)
       .map((id) => {
         const item = this.find(id);
-        const messages = this.chats[id];
-        if (!item || !messages?.length) {
+        const mensagens = this.chats[id];
+        if (!item || !mensagens?.length) {
           return null;
         }
-        return { item, last: messages[messages.length - 1] };
+        return { item, ultima: mensagens[mensagens.length - 1] };
       })
-      .filter((row): row is { item: Item; last: ChatMessage } => row !== null);
+      .filter((row): row is { item: Item; ultima: ChatMessage } => row !== null);
   }
 
-  toggleFavorite(id: string): void {
-    const next = new Set(this.favoriteIds());
-    if (next.has(id)) {
-      next.delete(id);
+  alternarFavorito(id: string): void {
+    const proximo = new Set(this.idsFavoritos());
+    if (proximo.has(id)) {
+      proximo.delete(id);
     } else {
-      next.add(id);
+      proximo.add(id);
     }
-    localStorage.setItem('amb.favorites', JSON.stringify([...next]));
+    localStorage.setItem('amb.favoritos', JSON.stringify([...proximo]));
   }
 
-  isFavorite(id: string): boolean {
-    return this.favoriteIds().has(id);
+  ehFavorito(id: string): boolean {
+    return this.idsFavoritos().has(id);
   }
 
-  favorites(): Item[] {
-    const ids = this.favoriteIds();
+  favoritos(): Item[] {
+    const ids = this.idsFavoritos();
     return this.items.filter((item) => ids.has(item.id));
   }
 
-  private favoriteIds(): Set<string> {
-    const raw = localStorage.getItem('amb.favorites');
-    return new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+  private idsFavoritos(): Set<string> {
+    const bruto = localStorage.getItem('amb.favoritos');
+    return new Set<string>(bruto ? (JSON.parse(bruto) as string[]) : []);
   }
 
-  messagesFor(itemId: string): ChatMessage[] {
+  mensagensDe(itemId: string): ChatMessage[] {
     return this.chats[itemId] ?? [];
   }
 }

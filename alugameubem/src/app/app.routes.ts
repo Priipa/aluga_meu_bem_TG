@@ -4,12 +4,13 @@ import { guardAutenticado, guardSomenteVisitante } from './core/autenticacao.gua
 export const routes: Routes = [
   {
     path: 'welcome',
-    loadComponent: () => import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
+    loadComponent: () =>
+      import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
   },
   {
-    path: 'register',
+    path: 'cadastro',
     canActivate: [guardSomenteVisitante],
-    loadComponent: () => import('./pages/register/register.page').then((m) => m.RegisterPage),
+    loadComponent: () => import('./pages/cadastro/cadastro.page').then((m) => m.CadastroPage),
   },
   {
     path: 'login',
@@ -22,27 +23,29 @@ export const routes: Routes = [
     children: [
       {
         path: 'home',
-        loadComponent: () => import('./pages/explore/explore.page').then((m) => m.ExplorePage),
+        loadComponent: () => import('./pages/explorar/explorar.page').then((m) => m.ExplorarPage),
       },
       {
-        path: 'messages',
+        path: 'mensagens',
         canActivate: [guardAutenticado],
-        loadComponent: () => import('./pages/messages/messages.page').then((m) => m.MessagesPage),
+        loadComponent: () =>
+          import('./pages/mensagens/mensagens.page').then((m) => m.MensagensPage),
       },
       {
-        path: 'publish',
+        path: 'anunciar',
         canActivate: [guardAutenticado],
-        loadComponent: () => import('./pages/publish/publish.page').then((m) => m.PublishPage),
+        loadComponent: () => import('./pages/anunciar/anunciar.page').then((m) => m.AnunciarPage),
       },
       {
-        path: 'favorites',
+        path: 'favoritos',
         canActivate: [guardAutenticado],
-        loadComponent: () => import('./pages/favorites/favorites.page').then((m) => m.FavoritesPage),
+        loadComponent: () =>
+          import('./pages/favoritos/favoritos.page').then((m) => m.FavoritosPage),
       },
       {
-        path: 'profile',
+        path: 'perfil',
         canActivate: [guardAutenticado],
-        loadComponent: () => import('./pages/profile/profile.page').then((m) => m.ProfilePage),
+        loadComponent: () => import('./pages/perfil/perfil.page').then((m) => m.PerfilPage),
       },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
@@ -50,12 +53,12 @@ export const routes: Routes = [
   {
     path: 'item/:id',
     loadComponent: () =>
-      import('./pages/item-details/item-details.page').then((m) => m.ItemDetailsPage),
+      import('./pages/detalhes-item/detalhes-item.page').then((m) => m.DetalhesItemPage),
   },
   {
-    path: 'checkout/:id',
+    path: 'pagamento/:id',
     canActivate: [guardAutenticado],
-    loadComponent: () => import('./pages/checkout/checkout.page').then((m) => m.CheckoutPage),
+    loadComponent: () => import('./pages/pagamento/pagamento.page').then((m) => m.PagamentoPage),
   },
   {
     path: 'chat/:id',

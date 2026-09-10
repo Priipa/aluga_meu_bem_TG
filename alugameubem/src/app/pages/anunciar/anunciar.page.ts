@@ -18,9 +18,9 @@ import {
 } from '@ionic/angular';
 
 @Component({
-  selector: 'app-publish',
-  templateUrl: './publish.page.html',
-  styleUrls: ['./publish.page.scss'],
+  selector: 'app-anunciar',
+  templateUrl: './anunciar.page.html',
+  styleUrls: ['./anunciar.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
@@ -38,10 +38,10 @@ import {
     ReactiveFormsModule,
   ],
 })
-export class PublishPage {
+export class AnunciarPage {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  readonly published = signal(false);
+  readonly publicado = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -56,7 +56,7 @@ export class PublishPage {
       this.form.markAllAsTouched();
       return;
     }
-    this.published.set(true);
+    this.publicado.set(true);
     setTimeout(() => void this.router.navigateByUrl('/tabs/home'), 900);
   }
 }

@@ -12,12 +12,12 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { arrowBack, heartOutline, shareOutline, star, locationOutline, checkmarkCircle } from 'ionicons/icons';
-import { CatalogService } from '../../core/catalog.service';
+import { CatalogoService } from '../../core/catalogo.service';
 
 @Component({
-  selector: 'app-item-details',
-  templateUrl: './item-details.page.html',
-  styleUrls: ['./item-details.page.scss'],
+  selector: 'app-detalhes-item',
+  templateUrl: './detalhes-item.page.html',
+  styleUrls: ['./detalhes-item.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
@@ -30,13 +30,13 @@ import { CatalogService } from '../../core/catalog.service';
     CurrencyPipe,
   ],
 })
-export class ItemDetailsPage {
-  private readonly catalog = inject(CatalogService);
+export class DetalhesItemPage {
+  private readonly catalogo = inject(CatalogoService);
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
   readonly imageIndex = signal(0);
-  readonly item = computed(() => this.catalog.find(this.id()));
+  readonly item = computed(() => this.catalogo.find(this.id()));
   readonly days = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
   readonly calendar = this.buildCalendar();
 
@@ -47,7 +47,7 @@ export class ItemDetailsPage {
   rent(): void {
     const item = this.item();
     if (item) {
-      void this.router.navigate(['/checkout', item.id]);
+      void this.router.navigate(['/pagamento', item.id]);
     }
   }
 

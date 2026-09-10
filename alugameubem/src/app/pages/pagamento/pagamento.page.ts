@@ -18,12 +18,12 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { cardOutline, qrCodeOutline } from 'ionicons/icons';
-import { CatalogService } from '../../core/catalog.service';
+import { CatalogoService } from '../../core/catalogo.service';
 
 @Component({
-  selector: 'app-checkout',
-  templateUrl: './checkout.page.html',
-  styleUrls: ['./checkout.page.scss'],
+  selector: 'app-pagamento',
+  templateUrl: './pagamento.page.html',
+  styleUrls: ['./pagamento.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
@@ -41,11 +41,11 @@ import { CatalogService } from '../../core/catalog.service';
     CurrencyPipe,
   ],
 })
-export class CheckoutPage {
-  private readonly catalog = inject(CatalogService);
+export class PagamentoPage {
+  private readonly catalogo = inject(CatalogoService);
   private readonly router = inject(Router);
   readonly id = input.required<string>();
-  readonly item = computed(() => this.catalog.find(this.id()));
+  readonly item = computed(() => this.catalogo.find(this.id()));
   readonly method = signal<'pix' | 'card'>('pix');
   readonly days = 7;
   paid = signal(false);

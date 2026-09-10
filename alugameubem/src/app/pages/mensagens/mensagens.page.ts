@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
-import { CatalogService } from '../../core/catalog.service';
+import { CatalogoService } from '../../core/catalogo.service';
 
 @Component({
-  selector: 'app-messages',
-  templateUrl: './messages.page.html',
-  styleUrls: ['./messages.page.scss'],
+  selector: 'app-mensagens',
+  templateUrl: './mensagens.page.html',
+  styleUrls: ['./mensagens.page.scss'],
   imports: [IonHeader, IonToolbar, IonTitle, IonContent, RouterLink],
 })
-export class MessagesPage {
-  readonly conversations = inject(CatalogService).conversations();
+export class MensagensPage {
+  readonly conversas = inject(CatalogoService).conversas();
 }

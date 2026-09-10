@@ -4,12 +4,12 @@ import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/a
 import { AutenticacaoService } from '../../core/autenticacao.service';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.page.html',
-  styleUrls: ['./profile.page.scss'],
+  selector: 'app-perfil',
+  templateUrl: './perfil.page.html',
+  styleUrls: ['./perfil.page.scss'],
   imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, RouterLink],
 })
-export class ProfilePage {
+export class PerfilPage {
   private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);
   readonly perfil = this.autenticacao.perfil;

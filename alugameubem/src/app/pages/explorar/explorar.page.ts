@@ -13,14 +13,14 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { chevronDown, heart, heartOutline, mapOutline } from 'ionicons/icons';
-import { CatalogService } from '../../core/catalog.service';
+import { CatalogoService } from '../../core/catalogo.service';
 
 type FilterKey = 'categoria' | 'local' | 'preco' | 'disponibilidade';
 
 @Component({
-  selector: 'app-explore',
-  templateUrl: './explore.page.html',
-  styleUrls: ['./explore.page.scss'],
+  selector: 'app-explorar',
+  templateUrl: './explorar.page.html',
+  styleUrls: ['./explorar.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
@@ -34,8 +34,8 @@ type FilterKey = 'categoria' | 'local' | 'preco' | 'disponibilidade';
     CurrencyPipe,
   ],
 })
-export class ExplorePage {
-  private readonly catalog = inject(CatalogService);
+export class ExplorarPage {
+  private readonly catalogo = inject(CatalogoService);
   readonly query = signal('');
   readonly activeFilter = signal<FilterKey>('categoria');
   readonly category = signal<string | null>(null);
@@ -51,7 +51,7 @@ export class ExplorePage {
 
   readonly items = computed(() => {
     this.favTick();
-    let list = this.catalog.search(this.query());
+    let list = this.catalogo.search(this.query());
     const category = this.category();
     if (category) {
       list = list.filter((item) => item.categories.includes(category));
@@ -76,12 +76,12 @@ export class ExplorePage {
   toggleFav(id: string, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.catalog.toggleFavorite(id);
+    this.catalogo.alternarFavorito(id);
     this.favTick.update((n) => n + 1);
   }
 
   isFav(id: string): boolean {
     this.favTick();
-    return this.catalog.isFavorite(id);
+    return this.catalogo.ehFavorito(id);
   }
 }
