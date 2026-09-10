@@ -16,6 +16,10 @@
   color: var(--amb-ink);
 }
 
+.obrigatorio {
+  color: #b42318;
+}
+
 .box {
   width: 100%;
   height: 48px;
@@ -26,6 +30,11 @@
   background: #fff;
   font: inherit;
   color: var(--amb-ink);
+}
+
+.box.invalid {
+  margin-bottom: 6px;
+  border-color: #b42318;
 }
 
 .box:focus {
@@ -83,6 +92,23 @@
   font-size: 13px;
   line-height: 1.4;
   color: var(--amb-secondary);
+}
+
+.hint,
+.hint-erro {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hint {
+  margin: -8px 0 12px;
+  color: var(--amb-muted);
+}
+
+.hint-erro {
+  margin: 0 0 12px;
+  color: #b42318;
+  font-weight: 600;
 }
 
 .erro {

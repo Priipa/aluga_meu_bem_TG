@@ -1,5 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonBackButton,
@@ -14,6 +20,10 @@ import {
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline, shieldCheckmarkOutline } from 'ionicons/icons';
 import { AutenticacaoService } from '../../core/autenticacao.service';
+
+type CampoCadastro = 'name' | 'email' | 'password' | 'confirmPassword' | 'cpf' | 'phone';
+
+const EMAIL_REGEX = /^[a-z0-9._%+\-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}$/;
 
 @Component({
   selector: 'app-cadastro',
@@ -37,19 +47,35 @@ export class CadastroPage {
   private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);
   readonly showPassword = signal(false);
+  readonly showConfirmPassword = signal(false);
   readonly carregando = signal(false);
   readonly mensagemErro = signal('');
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    cpf: ['', [Validators.required, Validators.minLength(14)]],
+    email: ['', [Validators.required, emailValidoValidator]],
+    password: ['', [Validators.required, senhaForteValidator]],
+    confirmPassword: ['', [Validators.required, confirmarSenhaValidator]],
+    cpf: ['', [Validators.required, cpfValidoValidator]],
     phone: ['', [Validators.required, Validators.minLength(14)]],
   });
 
   constructor() {
     addIcons({ eyeOutline, eyeOffOutline, shieldCheckmarkOutline });
+  }
+
+  formatarNome(): void {
+    const formatado = formatarNomeTitulo(this.form.controls.name.value);
+    this.form.controls.name.setValue(formatado);
+  }
+
+  formatarEmail(event: Event): void {
+    const valor = (event.target as HTMLInputElement).value.toLowerCase();
+    this.form.controls.email.setValue(valor);
+  }
+
+  atualizarConfirmacaoSenha(): void {
+    this.form.controls.confirmPassword.updateValueAndValidity();
   }
 
   maskCpf(event: Event): void {
@@ -76,10 +102,54 @@ export class CadastroPage {
     this.form.controls.phone.setValue(value);
   }
 
+  exibirErro(campo: CampoCadastro): boolean {
+    const controle = this.form.controls[campo];
+    return controle.invalid && controle.touched;
+  }
+
+  textoErro(campo: CampoCadastro): string {
+    const erros = this.form.controls[campo].errors;
+    if (!erros) {
+      return '';
+    }
+    if (erros['required']) {
+      return 'Campo obrigatório.';
+    }
+    if (erros['minlength']) {
+      if (campo === 'name') {
+        return 'Informe seu nome completo.';
+      }
+      if (campo === 'phone') {
+        return 'Informe um telefone válido.';
+      }
+      return 'A senha deve ter no mínimo 6 caracteres.';
+    }
+    if (erros['emailInvalido']) {
+      return 'Informe um e-mail válido, como email@exemplo.com.';
+    }
+    if (erros['senhaSemMaiuscula']) {
+      return 'A senha deve conter pelo menos uma letra maiúscula.';
+    }
+    if (erros['senhaSemNumero']) {
+      return 'A senha deve conter pelo menos um número.';
+    }
+    if (erros['senhasDiferentes']) {
+      return 'As senhas não coincidem.';
+    }
+    if (erros['cpfInvalido']) {
+      return 'Informe um CPF válido.';
+    }
+    return 'Campo inválido.';
+  }
+
   async submit(): Promise<void> {
+    this.formatarNome();
+    this.form.controls.email.setValue(this.form.controls.email.value.trim().toLowerCase());
+    this.form.controls.confirmPassword.updateValueAndValidity();
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.mensagemErro.set('Preencha todos os campos para criar sua conta.');
+      this.mensagemErro.set('Corrija os campos destacados para criar sua conta.');
       return;
     }
 
@@ -89,8 +159,8 @@ export class CadastroPage {
     try {
       const { name, email, password, cpf, phone } = this.form.getRawValue();
       await this.autenticacao.criarConta({
-        nome: name,
-        email,
+        nome: formatarNomeTitulo(name),
+        email: email.trim().toLowerCase(),
         senha: password,
         cpf,
         telefone: phone,
@@ -102,4 +172,74 @@ export class CadastroPage {
       this.carregando.set(false);
     }
   }
+}
+
+function formatarNomeTitulo(valor: string): string {
+  return valor
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/(^|[\s'-])(\p{L})/gu, (_match, separador: string, letra: string) => {
+      return separador + letra.toLocaleUpperCase('pt-BR');
+    });
+}
+
+function emailValidoValidator(control: AbstractControl): ValidationErrors | null {
+  const valor = String(control.value ?? '').trim().toLowerCase();
+  if (!valor) {
+    return null;
+  }
+  return EMAIL_REGEX.test(valor) ? null : { emailInvalido: true };
+}
+
+function senhaForteValidator(control: AbstractControl): ValidationErrors | null {
+  const valor = String(control.value ?? '');
+  if (!valor) {
+    return null;
+  }
+  if (valor.length < 6) {
+    return { minlength: { requiredLength: 6, actualLength: valor.length } };
+  }
+  if (!/[A-ZÀ-Ý]/.test(valor)) {
+    return { senhaSemMaiuscula: true };
+  }
+  if (!/\d/.test(valor)) {
+    return { senhaSemNumero: true };
+  }
+  return null;
+}
+
+function confirmarSenhaValidator(control: AbstractControl): ValidationErrors | null {
+  const senha = control.parent?.get('password')?.value;
+  const confirmacao = String(control.value ?? '');
+  if (!confirmacao) {
+    return null;
+  }
+  return senha === confirmacao ? null : { senhasDiferentes: true };
+}
+
+function cpfValidoValidator(control: AbstractControl): ValidationErrors | null {
+  const valor = String(control.value ?? '');
+  if (!valor) {
+    return null;
+  }
+  return cpfEhValido(valor) ? null : { cpfInvalido: true };
+}
+
+function cpfEhValido(cpf: string): boolean {
+  const digitos = cpf.replace(/\D/g, '');
+  if (digitos.length !== 11 || /^(\d)\1{10}$/.test(digitos)) {
+    return false;
+  }
+
+  const calcularDigito = (tamanho: number): number => {
+    let soma = 0;
+    for (let i = 0; i < tamanho; i++) {
+      soma += Number(digitos[i]) * (tamanho + 1 - i);
+    }
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+
+  return calcularDigito(9) === Number(digitos[9]) && calcularDigito(10) === Number(digitos[10]);
 }
