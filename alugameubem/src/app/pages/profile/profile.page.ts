@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
-import { CatalogService } from '../../core/catalog.service';
+import { AutenticacaoService } from '../../core/autenticacao.service';
 
 @Component({
   selector: 'app-profile',
@@ -10,12 +10,13 @@ import { CatalogService } from '../../core/catalog.service';
   imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, RouterLink],
 })
 export class ProfilePage {
-  private readonly catalog = inject(CatalogService);
+  private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);
-  readonly profile = this.catalog.profile();
+  readonly perfil = this.autenticacao.perfil;
+  readonly erroSessao = this.autenticacao.erroSessao;
 
-  logout(): void {
-    this.catalog.logout();
-    void this.router.navigateByUrl('/welcome');
+  async logout(): Promise<void> {
+    await this.autenticacao.sair();
+    await this.router.navigateByUrl('/welcome');
   }
 }

@@ -13,7 +13,7 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { eyeOffOutline, eyeOutline, shieldCheckmarkOutline } from 'ionicons/icons';
-import { CatalogService } from '../../core/catalog.service';
+import { AutenticacaoService } from '../../core/autenticacao.service';
 
 @Component({
   selector: 'app-register',
@@ -34,9 +34,11 @@ import { CatalogService } from '../../core/catalog.service';
 })
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);
-  private readonly catalog = inject(CatalogService);
+  private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);
   readonly showPassword = signal(false);
+  readonly carregando = signal(false);
+  readonly mensagemErro = signal('');
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -74,13 +76,30 @@ export class RegisterPage {
     this.form.controls.phone.setValue(value);
   }
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.mensagemErro.set('Preencha todos os campos para criar sua conta.');
       return;
     }
-    const { name, email, cpf, phone } = this.form.getRawValue();
-    this.catalog.saveProfile({ name, email, city: 'São Paulo', cpf, phone });
-    void this.router.navigateByUrl('/tabs/home');
+
+    this.carregando.set(true);
+    this.mensagemErro.set('');
+
+    try {
+      const { name, email, password, cpf, phone } = this.form.getRawValue();
+      await this.autenticacao.criarConta({
+        nome: name,
+        email,
+        senha: password,
+        cpf,
+        telefone: phone,
+      });
+      await this.router.navigateByUrl('/tabs/home');
+    } catch (erro) {
+      this.mensagemErro.set(this.autenticacao.traduzirErro(erro));
+    } finally {
+      this.carregando.set(false);
+    }
   }
 }

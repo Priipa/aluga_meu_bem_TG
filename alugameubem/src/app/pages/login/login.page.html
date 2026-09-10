@@ -18,7 +18,12 @@
           <ion-input label="Senha" labelPlacement="stacked" type="password" formControlName="password" autocomplete="current-password"></ion-input>
         </ion-item>
       </ion-list>
-      <ion-button expand="block" type="submit" class="btn-pill btn-lime">Entrar</ion-button>
+      @if (mensagemErro()) {
+        <p class="erro">{{ mensagemErro() }}</p>
+      }
+      <ion-button expand="block" type="submit" class="btn-pill btn-lime" [disabled]="carregando()">
+        {{ carregando() ? 'Entrando...' : 'Entrar' }}
+      </ion-button>
     </form>
 
     <p class="switch">

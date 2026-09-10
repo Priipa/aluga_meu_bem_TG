@@ -43,7 +43,13 @@
       <p>Para a segurança de todos, pediremos que você verifique sua identidade após criar sua conta.</p>
     </div>
 
-    <ion-button expand="block" type="submit" class="btn-pill btn-solid">Criar Conta</ion-button>
+    @if (mensagemErro()) {
+      <p class="erro">{{ mensagemErro() }}</p>
+    }
+
+    <ion-button expand="block" type="submit" class="btn-pill btn-solid" [disabled]="carregando()">
+      {{ carregando() ? 'Criando conta...' : 'Criar Conta' }}
+    </ion-button>
 
     <p class="switch">
       Já tem uma conta?

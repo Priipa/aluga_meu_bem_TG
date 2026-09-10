@@ -9,8 +9,8 @@
     <div class="hero-card">
       <img class="avatar" src="https://i.pravatar.cc/120?img=68" alt="Foto do perfil" />
       <div>
-        <h2>{{ profile?.name || 'Visitante' }}</h2>
-        <p>{{ profile?.city || 'São Paulo' }}</p>
+        <h2>{{ perfil()?.name || 'Visitante' }}</h2>
+        <p>{{ perfil()?.city || 'São Paulo' }}</p>
       </div>
     </div>
 
@@ -18,8 +18,15 @@
       Publicar um item
     </ion-button>
 
+    @if (erroSessao()) {
+      <p class="erro">{{ erroSessao() }}</p>
+    }
+
     <div class="menu">
-      <p>E-mail: {{ profile?.email || 'não informado' }}</p>
+      <p>E-mail: {{ perfil()?.email || 'não informado' }}</p>
+      @if (perfil()?.phone) {
+        <p>Telefone: {{ perfil()?.phone }}</p>
+      }
       <p>Alugue, compartilhe e economize com a vizinhança.</p>
     </div>
 

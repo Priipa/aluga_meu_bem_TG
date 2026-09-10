@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -11,7 +11,7 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
-import { CatalogService } from '../../core/catalog.service';
+import { AutenticacaoService } from '../../core/autenticacao.service';
 
 @Component({
   selector: 'app-login',
@@ -32,25 +32,35 @@ import { CatalogService } from '../../core/catalog.service';
 })
 export class LoginPage {
   private readonly fb = inject(FormBuilder);
-  private readonly catalog = inject(CatalogService);
+  private readonly autenticacao = inject(AutenticacaoService);
   private readonly router = inject(Router);
+
+  readonly carregando = signal(false);
+  readonly mensagemErro = signal('');
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.mensagemErro.set('Preencha e-mail e senha para entrar.');
       return;
     }
-    const existing = this.catalog.profile();
-    this.catalog.saveProfile({
-      name: existing?.name ?? 'Você',
-      email: this.form.controls.email.value,
-      city: existing?.city ?? 'São Paulo',
-    });
-    void this.router.navigateByUrl('/tabs/home');
+
+    this.carregando.set(true);
+    this.mensagemErro.set('');
+
+    try {
+      const { email, password } = this.form.getRawValue();
+      await this.autenticacao.entrar(email, password);
+      await this.router.navigateByUrl('/tabs/home');
+    } catch (erro) {
+      this.mensagemErro.set(this.autenticacao.traduzirErro(erro));
+    } finally {
+      this.carregando.set(false);
+    }
   }
 }
