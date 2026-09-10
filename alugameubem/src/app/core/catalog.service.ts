@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ChatMessage, Item, UserProfile } from './models';
+import { ChatMessage, Item } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
@@ -441,19 +441,5 @@ export class CatalogService {
 
   messagesFor(itemId: string): ChatMessage[] {
     return this.chats[itemId] ?? [];
-  }
-
-  saveProfile(profile: UserProfile): void {
-    localStorage.setItem('amb.profile', JSON.stringify(profile));
-    localStorage.setItem('amb.loggedIn', '1');
-  }
-
-  profile(): UserProfile | null {
-    const raw = localStorage.getItem('amb.profile');
-    return raw ? (JSON.parse(raw) as UserProfile) : null;
-  }
-
-  logout(): void {
-    localStorage.removeItem('amb.loggedIn');
   }
 }
