@@ -61,6 +61,7 @@ pnpm-debug.log*
 *.p12
 credentials.json
 service-account*.json
+*-firebase-adminsdk-*.json
 
 # Tests and coverage
 /coverage
@@ -76,6 +77,11 @@ testem.log
 # Nx
 /.nx
 /.nx/cache
+
+# Firebase CLI cache and Cursor agent skills (não fazem parte do app)
+.firebase/
+.agents/
+skills-lock.json
 
 # IDEs and editors
 .idea/
