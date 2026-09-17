@@ -1,12 +1,164 @@
 rules_version = '2';
 
+// ===============================================================
+// Assumed Data Model — Etapa 3 (MVP)
+// ===============================================================
+//
+// Collection: usuarios
+// Document ID: uid do Firebase Authentication
+// Fields:
+//   - nome: string
+//   - email: string (igual a request.auth.token.email)
+//   - cpf: string no formato 000.000.000-00
+//   - telefone: string no formato da máscara do cadastro
+//   - termos: map { versao, aceitoEm }
+//   - locador: map { habilitado, habilitadoEm, versaoTermos, termosAceitosEm }
+//   - criadoEm / atualizadoEm: timestamp (serverTimestamp)
+// Contas antigas podem ter `cidade` e não ter `termos`/`locador`.
+// O get do dono não valida schema para preservar login.
+//
+// Collection: condominios
+// Document ID: determinístico (ex.: dev-jardim-das-flores)
+// Fields do documento principal:
+//   - nome, endereco, status, criadoEm, atualizadoEm
+// get/list públicos somente se status == 'ativo'. Sem escrita pelo app.
+// get() interno das regras no create de vinculos (fonte da verdade).
+//
+// Subcollection: condominios/{id}/privado/{documento}
+// Documento previsto: dados (cnpj, contato, verificacao)
+// Acesso do app: negado explicitamente. Sem wildcard recursivo.
+//
+// Collection: vinculos
+// Document ID: {uid}_{condominioId}
+// Limitação do MVP: não cobre duas unidades do mesmo usuário no mesmo
+// condomínio. Se isso for necessário, o ID terá de ser revisto.
+// Fields:
+//   - usuarioId, condominioId, unidade { bloco, apartamento }
+//   - status: 'ativo' no create desta etapa
+//   - criadoEm / atualizadoEm: timestamp (serverTimestamp)
+// Só create. Sem get/list/update/delete nesta etapa.
+//
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    match /usuarios/{usuarioId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == usuarioId;
+    function autenticado() {
+      return request.auth != null;
     }
 
+    function ehDono(uid) {
+      return autenticado() && request.auth.uid == uid;
+    }
+
+    function mapaExato(mapa, campos) {
+      return mapa is map
+        && mapa.keys().hasOnly(campos)
+        && mapa.keys().hasAll(campos);
+    }
+
+    function texto(valor, min, max) {
+      return valor is string
+        && valor.size() >= min
+        && valor.size() <= max;
+    }
+
+    // serverTimestamp() é avaliado como request.time nas rules.
+    // Impede o cliente de gravar um Timestamp escolhido à mão.
+    function timestampDoServidor(valor) {
+      return valor == request.time;
+    }
+
+    function cpfMascarado(valor) {
+      return valor is string
+        && valor.matches('^[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}$');
+    }
+
+    // Máscara atual: DDD + até 11 dígitos → "(00) 00000-000" ou "(00) 00000-0000".
+    function telefoneMascarado(valor) {
+      return valor is string
+        && valor.matches('^\\([0-9]{2}\\) [0-9]{5}-[0-9]{3,4}$');
+    }
+
+    function condominioAtivo(condominioId) {
+      let caminho = /databases/$(database)/documents/condominios/$(condominioId);
+      return condominioId is string
+        && exists(caminho)
+        && get(caminho).data.status == 'ativo';
+    }
+
+    match /usuarios/{usuarioId} {
+      allow get: if ehDono(usuarioId);
+
+      allow create: if ehDono(usuarioId) && usuarioNovoValido();
+
+      function usuarioNovoValido() {
+        let d = request.resource.data;
+        return mapaExato(d, [
+             'nome', 'email', 'cpf', 'telefone',
+             'termos', 'locador', 'criadoEm', 'atualizadoEm'
+           ])
+           && texto(d.nome, 2, 80)
+           && texto(d.email, 5, 120)
+           && d.email == request.auth.token.email
+           && cpfMascarado(d.cpf)
+           && telefoneMascarado(d.telefone)
+           && termosGeraisValidos(d.termos)
+           && locadorInicialValido(d.locador)
+           && timestampDoServidor(d.criadoEm)
+           && timestampDoServidor(d.atualizadoEm);
+      }
+
+      function termosGeraisValidos(termos) {
+        return mapaExato(termos, ['versao', 'aceitoEm'])
+          && termos.versao == '1'
+          && timestampDoServidor(termos.aceitoEm);
+      }
+
+      function locadorInicialValido(locador) {
+        return mapaExato(locador, [
+             'habilitado', 'habilitadoEm',
+             'versaoTermos', 'termosAceitosEm'
+           ])
+          && locador.habilitado == false
+          && locador.habilitadoEm == null
+          && locador.versaoTermos == null
+          && locador.termosAceitosEm == null;
+      }
+    }
+
+    match /condominios/{condominioId} {
+      allow get, list: if resource.data.status == 'ativo';
+
+      match /privado/{documento} {
+        allow get, list, create, update, delete: if false;
+      }
+    }
+
+    match /vinculos/{vinculoId} {
+      allow create: if autenticado() && vinculoNovoValido();
+
+      function vinculoNovoValido() {
+        let d = request.resource.data;
+        return mapaExato(d, [
+             'usuarioId', 'condominioId', 'unidade',
+             'status', 'criadoEm', 'atualizadoEm'
+           ])
+           && d.usuarioId == request.auth.uid
+           && vinculoId == request.auth.uid + '_' + d.condominioId
+           && texto(d.condominioId, 1, 80)
+           && condominioAtivo(d.condominioId)
+           && d.status == 'ativo'
+           && unidadeValida(d.unidade)
+           && timestampDoServidor(d.criadoEm)
+           && timestampDoServidor(d.atualizadoEm);
+      }
+
+      function unidadeValida(unidade) {
+        return mapaExato(unidade, ['bloco', 'apartamento'])
+          && texto(unidade.bloco, 1, 40)
+          && texto(unidade.apartamento, 1, 20);
+      }
+    }
   }
 }

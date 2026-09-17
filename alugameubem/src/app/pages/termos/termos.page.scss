@@ -1,0 +1,22 @@
+.headline {
+  font-size: 32px;
+  margin: 8px 0 8px;
+}
+
+.versao {
+  margin: 0 0 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--amb-secondary);
+}
+
+.corpo,
+.pendente {
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.pendente {
+  color: var(--amb-muted);
+}

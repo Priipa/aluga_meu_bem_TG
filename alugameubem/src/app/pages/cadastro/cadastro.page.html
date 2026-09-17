@@ -1,136 +1,216 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/welcome"></ion-back-button>
+      @if (etapa() === 1) {
+        <ion-back-button text="" defaultHref="/welcome"></ion-back-button>
+      } @else {
+        <ion-button fill="clear" (click)="voltar()" [disabled]="carregando()" aria-label="Voltar">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </ion-button>
+      }
     </ion-buttons>
     <ion-title>Criar Conta</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <form class="page-pad" [formGroup]="form" (ngSubmit)="submit()">
-    <h2 class="headline">Bem-vindo(a)!</h2>
-    <p class="lead">Vamos começar. Por favor, preencha os detalhes abaixo.</p>
+  <form class="page-pad" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <p class="passo">Etapa {{ etapa() }} de 2</p>
 
-    <label class="lab" for="name">Nome Completo <span class="obrigatorio">*</span></label>
-    <input
-      id="name"
-      class="box"
-      [class.invalid]="exibirErro('name')"
-      formControlName="name"
-      placeholder="Digite seu nome completo"
-      autocomplete="name"
-      (blur)="formatarNome()"
-    />
-    @if (exibirErro('name')) {
-      <p class="hint-erro">{{ textoErro('name') }}</p>
-    }
+    @if (etapa() === 1) {
+      <h2 class="headline">Bem-vindo(a)!</h2>
+      <p class="lead">Vamos começar. Por favor, preencha os detalhes abaixo.</p>
 
-    <label class="lab" for="email">Email <span class="obrigatorio">*</span></label>
-    <input
-      id="email"
-      class="box"
-      [class.invalid]="exibirErro('email')"
-      type="email"
-      formControlName="email"
-      placeholder="email@exemplo.com"
-      autocomplete="email"
-      (input)="formatarEmail($event)"
-    />
-    @if (exibirErro('email')) {
-      <p class="hint-erro">{{ textoErro('email') }}</p>
-    }
-
-    <label class="lab" for="password">Senha <span class="obrigatorio">*</span></label>
-    <div class="box box-icon" [class.invalid]="exibirErro('password')">
+      <label class="lab" for="name">Nome Completo <span class="obrigatorio">*</span></label>
       <input
-        id="password"
-        [type]="showPassword() ? 'text' : 'password'"
-        formControlName="password"
-        placeholder="Crie uma senha"
-        autocomplete="new-password"
-        (input)="atualizarConfirmacaoSenha()"
+        id="name"
+        class="box"
+        [class.invalid]="exibirErro('name')"
+        formControlName="name"
+        placeholder="Digite seu nome completo"
+        autocomplete="name"
+        (blur)="formatarNome()"
       />
-      <button type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'">
-        <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-      </button>
-    </div>
-    @if (exibirErro('password')) {
-      <p class="hint-erro">{{ textoErro('password') }}</p>
+      @if (exibirErro('name')) {
+        <p class="hint-erro">{{ textoErro('name') }}</p>
+      }
+
+      <label class="lab" for="email">Email <span class="obrigatorio">*</span></label>
+      <input
+        id="email"
+        class="box"
+        [class.invalid]="exibirErro('email')"
+        type="email"
+        formControlName="email"
+        placeholder="email@exemplo.com"
+        autocomplete="email"
+        (input)="formatarEmail($event)"
+      />
+      @if (exibirErro('email')) {
+        <p class="hint-erro">{{ textoErro('email') }}</p>
+      }
+
+      <label class="lab" for="password">Senha <span class="obrigatorio">*</span></label>
+      <div class="box box-icon" [class.invalid]="exibirErro('password')">
+        <input
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Crie uma senha"
+          autocomplete="new-password"
+          (input)="atualizarConfirmacaoSenha()"
+        />
+        <button type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'">
+          <ion-icon [name]="showPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
+      @if (exibirErro('password')) {
+        <p class="hint-erro">{{ textoErro('password') }}</p>
+      } @else {
+        <p class="hint">Mínimo 6 caracteres, com letra maiúscula e número.</p>
+      }
+
+      <label class="lab" for="confirmPassword">Confirmar senha <span class="obrigatorio">*</span></label>
+      <div class="box box-icon" [class.invalid]="exibirErro('confirmPassword')">
+        <input
+          id="confirmPassword"
+          [type]="showConfirmPassword() ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          placeholder="Repita a senha"
+          autocomplete="new-password"
+        />
+        <button
+          type="button"
+          (click)="showConfirmPassword.set(!showConfirmPassword())"
+          [attr.aria-label]="showConfirmPassword() ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'"
+        >
+          <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
+      @if (exibirErro('confirmPassword')) {
+        <p class="hint-erro">{{ textoErro('confirmPassword') }}</p>
+      }
+
+      <label class="lab" for="cpf">CPF <span class="obrigatorio">*</span></label>
+      <input
+        id="cpf"
+        class="box"
+        [class.invalid]="exibirErro('cpf')"
+        formControlName="cpf"
+        placeholder="000.000.000-00"
+        inputmode="numeric"
+        (input)="maskCpf($event)"
+      />
+      @if (exibirErro('cpf')) {
+        <p class="hint-erro">{{ textoErro('cpf') }}</p>
+      }
+
+      <label class="lab" for="phone">Telefone <span class="obrigatorio">*</span></label>
+      <input
+        id="phone"
+        class="box"
+        [class.invalid]="exibirErro('phone')"
+        formControlName="phone"
+        placeholder="(00) 00000-0000"
+        inputmode="tel"
+        (input)="maskPhone($event)"
+      />
+      @if (exibirErro('phone')) {
+        <p class="hint-erro">{{ textoErro('phone') }}</p>
+      }
+
+      <div class="notice">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <p>Para a segurança de todos, pediremos que você verifique sua identidade após criar sua conta.</p>
+      </div>
     } @else {
-      <p class="hint">Mínimo 6 caracteres, com letra maiúscula e número.</p>
-    }
+      <h2 class="headline">Sua comunidade</h2>
+      <p class="lead">Selecione o condomínio em que você mora e informe sua unidade.</p>
 
-    <label class="lab" for="confirmPassword">Confirmar senha <span class="obrigatorio">*</span></label>
-    <div class="box box-icon" [class.invalid]="exibirErro('confirmPassword')">
-      <input
-        id="confirmPassword"
-        [type]="showConfirmPassword() ? 'text' : 'password'"
-        formControlName="confirmPassword"
-        placeholder="Repita a senha"
-        autocomplete="new-password"
-      />
-      <button
-        type="button"
-        (click)="showConfirmPassword.set(!showConfirmPassword())"
-        [attr.aria-label]="showConfirmPassword() ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'"
+      <label class="lab" for="condominioId">Condomínio <span class="obrigatorio">*</span></label>
+      <select
+        id="condominioId"
+        class="box"
+        [class.invalid]="exibirErro('condominioId')"
+        formControlName="condominioId"
       >
-        <ion-icon [name]="showConfirmPassword() ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-      </button>
-    </div>
-    @if (exibirErro('confirmPassword')) {
-      <p class="hint-erro">{{ textoErro('confirmPassword') }}</p>
-    }
+        <option value="">
+          {{ carregandoCondominios() ? 'Carregando condomínios...' : 'Selecione o condomínio' }}
+        </option>
+        @for (condominio of condominios(); track condominio.id) {
+          <option [value]="condominio.id">{{ rotuloCondominio(condominio) }}</option>
+        }
+      </select>
+      @if (exibirErro('condominioId')) {
+        <p class="hint-erro">{{ textoErro('condominioId') }}</p>
+      }
 
-    <label class="lab" for="cpf">CPF <span class="obrigatorio">*</span></label>
-    <input
-      id="cpf"
-      class="box"
-      [class.invalid]="exibirErro('cpf')"
-      formControlName="cpf"
-      placeholder="000.000.000-00"
-      inputmode="numeric"
-      (input)="maskCpf($event)"
-    />
-    @if (exibirErro('cpf')) {
-      <p class="hint-erro">{{ textoErro('cpf') }}</p>
-    }
+      <label class="lab" for="bloco">Bloco / torre <span class="obrigatorio">*</span></label>
+      <input
+        id="bloco"
+        class="box"
+        [class.invalid]="exibirErro('bloco')"
+        formControlName="bloco"
+        placeholder="Ex.: A ou Torre 2"
+        maxlength="40"
+        (blur)="formatarUnidade('bloco')"
+      />
+      @if (exibirErro('bloco')) {
+        <p class="hint-erro">{{ textoErro('bloco') }}</p>
+      }
 
-    <label class="lab" for="phone">Telefone <span class="obrigatorio">*</span></label>
-    <input
-      id="phone"
-      class="box"
-      [class.invalid]="exibirErro('phone')"
-      formControlName="phone"
-      placeholder="(00) 00000-0000"
-      inputmode="tel"
-      (input)="maskPhone($event)"
-    />
-    @if (exibirErro('phone')) {
-      <p class="hint-erro">{{ textoErro('phone') }}</p>
-    }
+      <label class="lab" for="apartamento">Apartamento / unidade <span class="obrigatorio">*</span></label>
+      <input
+        id="apartamento"
+        class="box"
+        [class.invalid]="exibirErro('apartamento')"
+        formControlName="apartamento"
+        placeholder="Ex.: 32 ou 101A"
+        maxlength="20"
+        (blur)="formatarUnidade('apartamento')"
+      />
+      @if (exibirErro('apartamento')) {
+        <p class="hint-erro">{{ textoErro('apartamento') }}</p>
+      }
 
-    <div class="notice">
-      <ion-icon name="shield-checkmark-outline"></ion-icon>
-      <p>Para a segurança de todos, pediremos que você verifique sua identidade após criar sua conta.</p>
-    </div>
+      <label class="aceite" [class.invalid]="exibirErro('aceitaTermos')">
+        <input type="checkbox" formControlName="aceitaTermos" />
+        <span>
+          Li e aceito os
+          <a routerLink="/termos" (click)="guardarRascunho()">Termos de Uso</a>
+          (versão {{ versaoTermos }}).
+        </span>
+      </label>
+      @if (exibirErro('aceitaTermos')) {
+        <p class="hint-erro">{{ textoErro('aceitaTermos') }}</p>
+      }
+    }
 
     @if (mensagemErro()) {
       <p class="erro">{{ mensagemErro() }}</p>
     }
 
-    <ion-button expand="block" type="submit" class="btn-pill btn-solid" [disabled]="carregando()">
-      {{ carregando() ? 'Criando conta...' : 'Criar Conta' }}
-    </ion-button>
+    @if (etapa() === 1) {
+      <ion-button expand="block" type="submit" class="btn-pill btn-solid">
+        Continuar
+      </ion-button>
+    } @else {
+      <ion-button
+        expand="block"
+        type="submit"
+        class="btn-pill btn-solid"
+        [disabled]="carregando() || carregandoCondominios() || condominios().length === 0"
+      >
+        {{ carregando() ? 'Criando conta...' : 'Criar Conta' }}
+      </ion-button>
+      <ion-button expand="block" type="button" fill="outline" class="btn-pill btn-outlined" (click)="voltar()" [disabled]="carregando()">
+        Voltar
+      </ion-button>
+    }
 
     <p class="switch">
       Já tem uma conta?
       <a routerLink="/login">Faça login</a>
-    </p>
-
-    <p class="legal">
-      Ao se inscrever, você concorda com nossos
-      <u>Termos de Serviço</u> e <u>Política de Privacidade</u>.
     </p>
   </form>
 </ion-content>

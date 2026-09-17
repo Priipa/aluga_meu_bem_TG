@@ -10,7 +10,9 @@
       <img class="avatar" src="https://i.pravatar.cc/120?img=68" alt="Foto do perfil" />
       <div>
         <h2>{{ perfil()?.name || 'Visitante' }}</h2>
-        <p>{{ perfil()?.city || 'São Paulo' }}</p>
+        @if (perfil()?.city) {
+          <p>{{ perfil()?.city }}</p>
+        }
       </div>
     </div>
 

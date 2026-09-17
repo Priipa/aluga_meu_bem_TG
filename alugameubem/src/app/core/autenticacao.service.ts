@@ -8,9 +8,10 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { autenticacaoFirebase, bancoFirestore } from './firebase';
 import { UserProfile } from './models';
+import { VERSAO_TERMOS_GERAIS } from './termos';
 
 export interface DadosCadastro {
   nome: string;
@@ -18,10 +19,22 @@ export interface DadosCadastro {
   senha: string;
   cpf: string;
   telefone: string;
+  condominioId: string;
+  bloco: string;
+  apartamento: string;
 }
 
 const COLECAO_USUARIOS = 'usuarios';
-const CIDADE_PADRAO = 'São Paulo';
+const COLECAO_VINCULOS = 'vinculos';
+
+/**
+ * ID determinístico do MVP: um documento por par usuário+condomínio.
+ * Não cobre duas unidades simultâneas do mesmo usuário no mesmo condomínio.
+ * Se esse requisito aparecer, o modelo de identificação deverá ser revisto.
+ */
+function idVinculo(uid: string, condominioId: string): string {
+  return `${uid}_${condominioId}`;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AutenticacaoService {
@@ -68,23 +81,48 @@ export class AutenticacaoService {
 
       await updateProfile(usuario, { displayName: dados.nome });
 
+      const agora = serverTimestamp();
+      const lote = writeBatch(bancoFirestore);
+
+      lote.set(doc(bancoFirestore, COLECAO_USUARIOS, uid), {
+        nome: dados.nome,
+        email: dados.email,
+        cpf: dados.cpf,
+        telefone: dados.telefone,
+        termos: {
+          versao: VERSAO_TERMOS_GERAIS,
+          aceitoEm: agora,
+        },
+        locador: {
+          habilitado: false,
+          habilitadoEm: null,
+          versaoTermos: null,
+          termosAceitosEm: null,
+        },
+        criadoEm: agora,
+        atualizadoEm: agora,
+      });
+
+      lote.set(doc(bancoFirestore, COLECAO_VINCULOS, idVinculo(uid, dados.condominioId)), {
+        usuarioId: uid,
+        condominioId: dados.condominioId,
+        unidade: {
+          bloco: dados.bloco,
+          apartamento: dados.apartamento,
+        },
+        status: 'ativo',
+        criadoEm: agora,
+        atualizadoEm: agora,
+      });
+
+      await lote.commit();
+
       const perfil: UserProfile = {
         name: dados.nome,
         email: dados.email,
-        city: CIDADE_PADRAO,
         cpf: dados.cpf,
         phone: dados.telefone,
       };
-
-      await setDoc(doc(bancoFirestore, COLECAO_USUARIOS, uid), {
-        nome: dados.nome,
-        email: dados.email,
-        cidade: CIDADE_PADRAO,
-        cpf: dados.cpf,
-        telefone: dados.telefone,
-        criadoEm: serverTimestamp(),
-        atualizadoEm: serverTimestamp(),
-      });
 
       this.usuarioFirebase.set(usuario);
       this.dadosPerfil.set(perfil);
@@ -120,6 +158,7 @@ export class AutenticacaoService {
       'auth/too-many-requests': 'Muitas tentativas. Tente novamente em instantes.',
       'auth/network-request-failed': 'Sem conexão. Verifique a internet e tente de novo.',
       'auth/operation-not-allowed': 'O login por e-mail ainda não foi ativado no Firebase.',
+      'permission-denied': 'Não foi possível concluir. Tente novamente.',
       'perfil/nao-criado': 'Não foi possível criar sua conta.',
       'perfil/nao-carregado': 'Não foi possível carregar seus dados.',
     };
@@ -167,11 +206,12 @@ export class AutenticacaoService {
   private mapearPerfil(usuario: User, dados: Record<string, unknown>): UserProfile {
     const telefone = dados['telefone'];
     const cpf = dados['cpf'];
+    const cidade = dados['cidade'];
 
     return {
       name: String(dados['nome'] ?? usuario.displayName ?? 'Você'),
       email: String(dados['email'] ?? usuario.email ?? ''),
-      city: String(dados['cidade'] ?? CIDADE_PADRAO),
+      city: typeof cidade === 'string' && cidade.trim() ? cidade : undefined,
       cpf: cpf ? String(cpf) : undefined,
       phone: telefone ? String(telefone) : undefined,
     };

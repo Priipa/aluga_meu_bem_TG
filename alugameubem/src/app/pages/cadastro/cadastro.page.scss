@@ -1,3 +1,12 @@
+.passo {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amb-secondary);
+}
+
 .headline {
   font-size: 32px;
   margin: 8px 0 8px;
@@ -35,6 +44,10 @@
 .box.invalid {
   margin-bottom: 6px;
   border-color: #b42318;
+}
+
+select.box {
+  appearance: auto;
 }
 
 .box:focus {
@@ -127,6 +140,36 @@
   color: var(--amb-secondary);
   font-weight: 800;
   text-decoration: none;
+}
+
+.btn-outlined {
+  margin-top: 10px;
+}
+
+.aceite {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 8px 0 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--amb-ink);
+}
+
+.aceite input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.aceite a {
+  color: var(--amb-secondary);
+  font-weight: 800;
+}
+
+.aceite.invalid {
+  color: #b42318;
 }
 
 .legal {

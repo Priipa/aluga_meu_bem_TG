@@ -1,0 +1,25 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" [defaultHref]="destinoVoltar"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Termos de Uso</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <h2 class="headline">Termos de Uso</h2>
+    <p class="versao">Versão {{ versao }}</p>
+
+    @if (texto) {
+      <div class="corpo">{{ texto }}</div>
+    } @else {
+      <p class="pendente">
+        O conteúdo desta versão ainda não foi definido. O aceite no cadastro
+        só deve ser considerado válido depois que este texto estiver publicado
+        aqui.
+      </p>
+    }
+  </div>
+</ion-content>
