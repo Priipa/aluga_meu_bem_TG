@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButtons,
   IonContent,
   IonHeader,
@@ -25,7 +24,6 @@ type FilterKey = 'categoria' | 'local' | 'preco' | 'disponibilidade';
     IonHeader,
     IonToolbar,
     IonButtons,
-    IonBackButton,
     IonTitle,
     IonContent,
     IonIcon,
