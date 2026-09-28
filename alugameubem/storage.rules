@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /anuncios/{uid}/{anuncioId}/{arquivo} {
+      allow get: if dono(uid);
+      allow list: if false;
+      allow create, update: if dono(uid) && imagemPermitida();
+      allow delete: if dono(uid);
+    }
+
+    function dono(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function imagemPermitida() {
+      return request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+  }
+}

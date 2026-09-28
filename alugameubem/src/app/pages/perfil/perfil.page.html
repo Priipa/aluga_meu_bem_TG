@@ -16,9 +16,24 @@
       </div>
     </div>
 
-    <ion-button expand="block" class="btn-pill btn-lime" routerLink="/tabs/anunciar">
-      Publicar um item
-    </ion-button>
+    @if (ehLocador()) {
+      <ion-button expand="block" class="btn-pill btn-lime" routerLink="/tabs/anunciar">
+        Publicar um item
+      </ion-button>
+    } @else {
+      <ion-button
+        expand="block"
+        class="btn-pill btn-lime"
+        (click)="abrirAtivacao()"
+        [disabled]="ativando()"
+      >
+        Quero ser um locador(a)
+      </ion-button>
+    }
+
+    @if (erroAtivacao()) {
+      <p class="erro">{{ erroAtivacao() }}</p>
+    }
 
     @if (erroSessao()) {
       <p class="erro">{{ erroSessao() }}</p>
@@ -29,6 +44,9 @@
       @if (perfil()?.phone) {
         <p>Telefone: {{ perfil()?.phone }}</p>
       }
+      @if (ehLocador()) {
+        <p>Função de locador ativa</p>
+      }
       <p>Alugue, compartilhe e economize com a vizinhança.</p>
     </div>
 
@@ -37,3 +55,33 @@
     </ion-button>
   </div>
 </ion-content>
+
+<ion-modal
+  class="modal-locador"
+  [isOpen]="modalLocador()"
+  [backdropDismiss]="true"
+  (didDismiss)="descartarAceiteLocador()"
+>
+  <ng-template>
+    <div class="caixa-locador" (keydown.enter)="impedirEnterSemAceite($event)">
+      <h2>Quero ser um locador(a)</h2>
+      <p>
+        Ao se tornar locador, você poderá cadastrar itens para aluguel no seu condomínio.
+      </p>
+      <p>
+        Você será responsável pelas informações dos itens anunciados, pelas condições de uso e
+        conservação e pelo cumprimento das regras aplicáveis aos seus aluguéis.
+      </p>
+      <label class="aceite-locador">
+        <input type="checkbox" [checked]="aceiteLocador()" (change)="definirAceite($event)" />
+        <span>Li e aceito os Termos, Condições e Responsabilidades do Locador.</span>
+      </label>
+      <div class="acoes-locador">
+        <button type="button" (click)="descartarAceiteLocador()">Cancelar</button>
+        <button type="button" [disabled]="!aceiteLocador()" (click)="concluirAtivacao()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

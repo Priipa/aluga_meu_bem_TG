@@ -22,6 +22,19 @@ export const guardAutenticado: CanActivateFn = () => {
   );
 };
 
+/** Proteção de navegação: a rota de anúncio só abre para locador já autenticado. */
+export const guardLocador: CanActivateFn = () => {
+  const router = inject(Router);
+  return quandoSessaoPronta().pipe(
+    map((autenticacao) => {
+      if (!autenticacao.autenticado()) {
+        return true;
+      }
+      return autenticacao.ehLocador() ? true : router.createUrlTree(['/tabs/home']);
+    })
+  );
+};
+
 export const guardSomenteVisitante: CanActivateFn = () => {
   const router = inject(Router);
   return quandoSessaoPronta().pipe(

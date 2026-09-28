@@ -8,10 +8,22 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import {
+  Timestamp,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 import { autenticacaoFirebase, bancoFirestore } from './firebase';
-import { UserProfile } from './models';
-import { VERSAO_TERMOS_GERAIS } from './termos';
+import { Locador, UserProfile, Vinculo } from './models';
+import { VERSAO_TERMOS_GERAIS, VERSAO_TERMOS_LOCADOR } from './termos';
 
 export interface DadosCadastro {
   nome: string;
@@ -36,16 +48,34 @@ function idVinculo(uid: string, condominioId: string): string {
   return `${uid}_${condominioId}`;
 }
 
+/**
+ * Resultado da leitura do vínculo ativo.
+ * `erro` significa que a consulta não pôde ser concluída — não é o mesmo que ausência.
+ */
+export type SituacaoVinculo = 'ausente' | 'unico' | 'inconsistente' | 'erro';
+
 @Injectable({ providedIn: 'root' })
 export class AutenticacaoService {
   private readonly usuarioFirebase = signal<User | null>(null);
   private readonly dadosPerfil = signal<UserProfile | null>(null);
+  private readonly dadosVinculo = signal<Vinculo | null>(null);
+  private readonly situacaoInterna = signal<SituacaoVinculo>('ausente');
+  /** Invalida uma consulta de vínculo que terminar depois de logout ou troca de conta. */
+  private geracaoVinculo = 0;
+  private vinculoEmCurso: { uid: string; geracao: number; promessa: Promise<void> } | null = null;
 
   readonly carregandoSessao = signal(true);
   readonly erroSessao = signal('');
   readonly perfil = computed(() => this.dadosPerfil());
   readonly autenticado = computed(() => this.usuarioFirebase() !== null);
+  readonly ehLocador = computed(() => this.dadosPerfil()?.locador.habilitado === true);
   readonly uid = computed(() => this.usuarioFirebase()?.uid ?? null);
+  readonly situacaoVinculo = this.situacaoInterna.asReadonly();
+  /** Preenchido somente quando existe exatamente um vínculo ativo. */
+  readonly vinculoAtivo = computed(() =>
+    this.situacaoInterna() === 'unico' ? this.dadosVinculo() : null
+  );
+  readonly condominioId = computed(() => this.vinculoAtivo()?.condominioId ?? null);
 
   constructor() {
     onAuthStateChanged(autenticacaoFirebase, (usuario) => {
@@ -55,6 +85,7 @@ export class AutenticacaoService {
 
   async entrar(email: string, senha: string): Promise<void> {
     const credencial = await signInWithEmailAndPassword(autenticacaoFirebase, email, senha);
+    this.usuarioFirebase.set(credencial.user);
 
     try {
       await this.aplicarPerfilRemoto(credencial.user);
@@ -122,10 +153,17 @@ export class AutenticacaoService {
         email: dados.email,
         cpf: dados.cpf,
         phone: dados.telefone,
+        locador: {
+          habilitado: false,
+          habilitadoEm: null,
+          versaoTermos: null,
+          termosAceitosEm: null,
+        },
       };
 
       this.usuarioFirebase.set(usuario);
       this.dadosPerfil.set(perfil);
+      this.definirVinculoDoCadastro(uid, dados);
       this.erroSessao.set('');
       this.carregandoSessao.set(false);
     } catch (erro) {
@@ -139,10 +177,43 @@ export class AutenticacaoService {
     }
   }
 
+  async ativarLocador(): Promise<void> {
+    const usuario = this.usuarioFirebase();
+    const perfil = this.dadosPerfil();
+    if (!usuario || !perfil) {
+      throw this.erroComCodigo('perfil/nao-carregado');
+    }
+    if (perfil.locador.habilitado) {
+      return;
+    }
+
+    await updateDoc(doc(bancoFirestore, COLECAO_USUARIOS, usuario.uid), {
+      'locador.habilitado': true,
+      'locador.habilitadoEm': serverTimestamp(),
+      'locador.versaoTermos': VERSAO_TERMOS_LOCADOR,
+      'locador.termosAceitosEm': serverTimestamp(),
+      atualizadoEm: serverTimestamp(),
+    });
+
+    try {
+      await this.aplicarPerfilRemoto(usuario);
+    } catch {
+      this.dadosPerfil.set({
+        ...perfil,
+        locador: {
+          ...perfil.locador,
+          habilitado: true,
+          versaoTermos: VERSAO_TERMOS_LOCADOR,
+        },
+      });
+    }
+  }
+
   async sair(): Promise<void> {
     await signOut(autenticacaoFirebase);
     this.usuarioFirebase.set(null);
     this.dadosPerfil.set(null);
+    this.limparVinculo();
     this.erroSessao.set('');
   }
 
@@ -166,36 +237,200 @@ export class AutenticacaoService {
   }
 
   private async sincronizarSessao(usuario: User | null): Promise<void> {
+    const uidAnterior = this.usuarioFirebase()?.uid ?? null;
     this.usuarioFirebase.set(usuario);
 
     if (!usuario) {
       this.dadosPerfil.set(null);
+      this.limparVinculo();
       this.erroSessao.set('');
       this.carregandoSessao.set(false);
       return;
     }
 
+    if (uidAnterior !== usuario.uid) {
+      this.dadosPerfil.set(null);
+      this.limparVinculo();
+    }
+
     try {
       await this.aplicarPerfilRemoto(usuario);
     } catch {
+      if (this.usuarioFirebase()?.uid !== usuario.uid) {
+        return;
+      }
       if (this.dadosPerfil() && this.usuarioFirebase()?.uid === usuario.uid) {
         this.carregandoSessao.set(false);
         return;
       }
+      this.limparVinculo();
       this.erroSessao.set('Não foi possível carregar seus dados.');
       this.carregandoSessao.set(false);
     }
   }
 
   private async aplicarPerfilRemoto(usuario: User): Promise<void> {
+    const geracao = this.geracaoVinculo;
     const remoto = await this.carregarPerfilRemoto(usuario.uid);
+    if (!this.sessaoAindaEh(usuario.uid, geracao)) {
+      return;
+    }
     if (!remoto) {
       throw this.erroComCodigo('perfil/nao-carregado');
     }
 
     this.dadosPerfil.set(this.mapearPerfil(usuario, remoto));
     this.erroSessao.set('');
+    await this.resolverVinculo(usuario.uid);
+    if (!this.sessaoAindaEh(usuario.uid, geracao)) {
+      return;
+    }
     this.carregandoSessao.set(false);
+  }
+
+  private sessaoAindaEh(uid: string, geracao: number): boolean {
+    return this.geracaoVinculo === geracao && this.usuarioFirebase()?.uid === uid;
+  }
+
+  /**
+   * Consulta somente os vínculos ativos deste uid.
+   * 0 → ausente; 1 → usa esse vínculo; 2 ou mais → inconsistente, sem condomínio corrente.
+   * Chamadas sobrepostas do mesmo uid compartilham uma única consulta.
+   */
+  private resolverVinculo(uid: string): Promise<void> {
+    const geracao = this.geracaoVinculo;
+    if (this.vinculoEmCurso?.uid === uid && this.vinculoEmCurso.geracao === geracao) {
+      return this.vinculoEmCurso.promessa;
+    }
+
+    const promessa = this.executarResolucaoVinculo(uid).finally(() => {
+      if (this.vinculoEmCurso?.promessa === promessa) {
+        this.vinculoEmCurso = null;
+      }
+    });
+    this.vinculoEmCurso = { uid, geracao, promessa };
+    return promessa;
+  }
+
+  private async executarResolucaoVinculo(uid: string): Promise<void> {
+    const geracao = this.geracaoVinculo;
+
+    try {
+      const encontrados = await this.buscarVinculosAtivos(uid);
+      if (geracao !== this.geracaoVinculo || this.usuarioFirebase()?.uid !== uid) {
+        return;
+      }
+      this.aplicarVinculosEncontrados(uid, encontrados);
+    } catch {
+      if (geracao !== this.geracaoVinculo || this.usuarioFirebase()?.uid !== uid) {
+        return;
+      }
+      if (this.situacaoInterna() === 'unico' && this.dadosVinculo()?.usuarioId === uid) {
+        return;
+      }
+      this.dadosVinculo.set(null);
+      this.situacaoInterna.set('erro');
+    }
+  }
+
+  private async buscarVinculosAtivos(uid: string): Promise<{ id: string; dados: Record<string, unknown> }[]> {
+    const consulta = query(
+      collection(bancoFirestore, COLECAO_VINCULOS),
+      where('usuarioId', '==', uid),
+      where('status', '==', 'ativo'),
+      limit(2)
+    );
+    const snapshot = await getDocs(consulta);
+    return snapshot.docs.map((documento) => ({
+      id: documento.id,
+      dados: documento.data() as Record<string, unknown>,
+    }));
+  }
+
+  private aplicarVinculosEncontrados(
+    uid: string,
+    encontrados: { id: string; dados: Record<string, unknown> }[]
+  ): void {
+    if (encontrados.length === 0) {
+      this.dadosVinculo.set(null);
+      this.situacaoInterna.set('ausente');
+      return;
+    }
+
+    if (encontrados.length > 1) {
+      this.dadosVinculo.set(null);
+      this.situacaoInterna.set('inconsistente');
+      return;
+    }
+
+    const vinculo = this.mapearVinculo(encontrados[0].id, encontrados[0].dados);
+    if (!vinculo || vinculo.usuarioId !== uid || vinculo.status !== 'ativo') {
+      this.dadosVinculo.set(null);
+      this.situacaoInterna.set('inconsistente');
+      return;
+    }
+
+    this.dadosVinculo.set(vinculo);
+    this.situacaoInterna.set('unico');
+  }
+
+  private definirVinculoDoCadastro(uid: string, dados: DadosCadastro): void {
+    this.geracaoVinculo += 1;
+    const agora = Timestamp.now();
+    this.dadosVinculo.set({
+      id: idVinculo(uid, dados.condominioId),
+      usuarioId: uid,
+      condominioId: dados.condominioId,
+      unidade: {
+        bloco: dados.bloco,
+        apartamento: dados.apartamento,
+      },
+      status: 'ativo',
+      criadoEm: agora,
+      atualizadoEm: agora,
+    });
+    this.situacaoInterna.set('unico');
+  }
+
+  private limparVinculo(): void {
+    this.geracaoVinculo += 1;
+    this.dadosVinculo.set(null);
+    this.situacaoInterna.set('ausente');
+  }
+
+  private mapearVinculo(id: string, dados: Record<string, unknown>): Vinculo | null {
+    const usuarioId = dados['usuarioId'];
+    const condominioId = dados['condominioId'];
+    const status = dados['status'];
+    const unidade = dados['unidade'];
+    const criadoEm = dados['criadoEm'];
+    const atualizadoEm = dados['atualizadoEm'];
+
+    if (typeof usuarioId !== 'string' || typeof condominioId !== 'string' || status !== 'ativo') {
+      return null;
+    }
+    if (!unidade || typeof unidade !== 'object') {
+      return null;
+    }
+
+    const bloco = (unidade as Record<string, unknown>)['bloco'];
+    const apartamento = (unidade as Record<string, unknown>)['apartamento'];
+    if (typeof bloco !== 'string' || typeof apartamento !== 'string') {
+      return null;
+    }
+    if (!(criadoEm instanceof Timestamp) || !(atualizadoEm instanceof Timestamp)) {
+      return null;
+    }
+
+    return {
+      id,
+      usuarioId,
+      condominioId,
+      unidade: { bloco, apartamento },
+      status,
+      criadoEm,
+      atualizadoEm,
+    };
   }
 
   private async carregarPerfilRemoto(uid: string): Promise<Record<string, unknown> | null> {
@@ -214,6 +449,29 @@ export class AutenticacaoService {
       city: typeof cidade === 'string' && cidade.trim() ? cidade : undefined,
       cpf: cpf ? String(cpf) : undefined,
       phone: telefone ? String(telefone) : undefined,
+      locador: this.mapearLocador(dados['locador']),
+    };
+  }
+
+  private mapearLocador(valor: unknown): Locador {
+    if (!valor || typeof valor !== 'object') {
+      return {
+        habilitado: false,
+        habilitadoEm: null,
+        versaoTermos: null,
+        termosAceitosEm: null,
+      };
+    }
+
+    const locador = valor as Record<string, unknown>;
+    const versaoTermos = locador['versaoTermos'];
+
+    return {
+      habilitado: locador['habilitado'] === true,
+      habilitadoEm: locador['habilitadoEm'] instanceof Timestamp ? locador['habilitadoEm'] : null,
+      versaoTermos: typeof versaoTermos === 'string' ? versaoTermos : null,
+      termosAceitosEm:
+        locador['termosAceitosEm'] instanceof Timestamp ? locador['termosAceitosEm'] : null,
     };
   }
 

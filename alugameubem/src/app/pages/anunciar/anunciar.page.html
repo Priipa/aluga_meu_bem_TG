@@ -1,8 +1,12 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button text="" defaultHref="/tabs/home"></ion-back-button>
-    </ion-buttons>
+    @if (publicado()) {
+      <ion-buttons slot="start">
+        <ion-button routerLink="/tabs/home" aria-label="Voltar ao início">
+          <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
     <ion-title>Publicar item</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -10,35 +14,71 @@
 <ion-content [fullscreen]="true">
   <div class="page-pad">
     @if (publicado()) {
-      <h2>Item enviado</h2>
-      <p>Seu anúncio vai aparecer na lista da comunidade.</p>
+      <h2>Item publicado</h2>
+      <p>Seu anúncio foi registrado no condomínio.</p>
     } @else {
       <p>Anuncie o que está parado em casa e ganhe uma renda extra.</p>
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="photo">Adicionar fotos</div>
+      <form [formGroup]="form" (ngSubmit)="publicar()">
+        <div class="photo" [class.enviando]="carregando()">
+          @if (fotos().length) {
+            <div class="previews">
+              @for (foto of fotos(); track foto.preview) {
+                <figure>
+                  <img [src]="foto.preview" alt="Foto selecionada" />
+                  <button type="button" aria-label="Remover foto" [disabled]="carregando()" (click)="removerFoto(foto.preview)">
+                    <ion-icon name="close"></ion-icon>
+                  </button>
+                </figure>
+              }
+            </div>
+          }
+          @if (fotos().length < 3) {
+            <label>
+              <span>Adicionar fotos</span>
+              <small>JPEG, PNG ou WebP. Até 3 fotos, com no máximo 5 MB cada.</small>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                [disabled]="carregando()"
+                (change)="aoSelecionarFotos($event)"
+              />
+            </label>
+          }
+        </div>
         <ion-list lines="none">
           <ion-item class="field">
-            <ion-input label="Título" labelPlacement="stacked" formControlName="title"></ion-input>
+            <ion-input label="Título" labelPlacement="stacked" formControlName="titulo"></ion-input>
           </ion-item>
           <ion-item class="field">
-            <ion-select label="Categoria" labelPlacement="stacked" formControlName="category">
-              <ion-select-option value="Casa">Casa</ion-select-option>
-              <ion-select-option value="Eletrônicos">Eletrônicos</ion-select-option>
-              <ion-select-option value="Esporte">Esporte</ion-select-option>
-              <ion-select-option value="Ferramentas">Ferramentas</ion-select-option>
+            <ion-select label="Categoria" labelPlacement="stacked" formControlName="categoria" interface="popover">
+              @for (categoria of categorias; track categoria) {
+                <ion-select-option [value]="categoria">{{ categoria }}</ion-select-option>
+              }
             </ion-select>
           </ion-item>
           <ion-item class="field">
-            <ion-input label="Valor por dia (R$)" labelPlacement="stacked" type="number" formControlName="price"></ion-input>
+            <ion-input label="Valor por dia (R$)" labelPlacement="stacked" type="number" formControlName="valorDiaria"></ion-input>
           </ion-item>
           <ion-item class="field">
-            <ion-input label="Bairro" labelPlacement="stacked" formControlName="neighborhood"></ion-input>
+            <ion-textarea label="Descrição" labelPlacement="stacked" rows="4" formControlName="descricao"></ion-textarea>
           </ion-item>
           <ion-item class="field">
-            <ion-textarea label="Descrição" labelPlacement="stacked" rows="4" formControlName="description"></ion-textarea>
+            <ion-textarea label="Por que alugar?" labelPlacement="stacked" rows="3" formControlName="porQueAlugar"></ion-textarea>
+          </ion-item>
+          <ion-item class="field">
+            <ion-textarea label="O que acompanha?" labelPlacement="stacked" rows="3" formControlName="acompanha"></ion-textarea>
+          </ion-item>
+          <ion-item class="field">
+            <ion-textarea label="Condições de aluguel" labelPlacement="stacked" rows="4" formControlName="condicoes"></ion-textarea>
           </ion-item>
         </ion-list>
-        <ion-button expand="block" type="submit" class="btn-pill btn-lime">Publicar</ion-button>
+        @if (mensagemErro()) {
+          <p class="erro">{{ mensagemErro() }}</p>
+        }
+        <ion-button expand="block" type="submit" class="btn-pill btn-lime" [disabled]="carregando()">
+          {{ carregando() ? 'Publicando...' : 'Publicar item' }}
+        </ion-button>
       </form>
     }
   </div>

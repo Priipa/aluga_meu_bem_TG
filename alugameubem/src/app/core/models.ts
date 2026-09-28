@@ -57,6 +57,7 @@ export interface UserProfile {
   city?: string;
   cpf?: string;
   phone?: string;
+  locador: Locador;
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +162,34 @@ export interface Vinculo {
   atualizadoEm: Timestamp;
 }
 
-/** Collection `produtos`. `status` será fechado na etapa de anúncios. */
+export type StatusAnuncio = 'ativo' | 'pausado' | 'arquivado';
+
+/**
+ * Documento `anuncios/{anuncioId}`.
+ * `id` é o id do documento e não é gravado como campo.
+ * `imagens` guarda as URLs de download, de 1 a 3.
+ */
+export interface Anuncio {
+  id: string;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  valorDiaria: number;
+  porQueAlugar: string;
+  acompanha: string;
+  condicoes: string;
+  imagens: string[];
+  proprietarioId: string;
+  condominioId: string;
+  vinculoId: string;
+  nomeExibicao: string;
+  status: StatusAnuncio;
+  disponivel: boolean;
+  criadoEm: Timestamp;
+  atualizadoEm: Timestamp;
+}
+
+/** Rascunho antigo. A collection em uso é `anuncios`, não `produtos`. */
 export interface Produto {
   id: string;
   proprietarioId: string;

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { guardAutenticado, guardSomenteVisitante } from './core/autenticacao.guard';
+import { guardAutenticado, guardLocador, guardSomenteVisitante } from './core/autenticacao.guard';
 
 export const routes: Routes = [
   {
@@ -37,7 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'anunciar',
-        canActivate: [guardAutenticado],
+        canActivate: [guardAutenticado, guardLocador],
         loadComponent: () => import('./pages/anunciar/anunciar.page').then((m) => m.AnunciarPage),
       },
       {

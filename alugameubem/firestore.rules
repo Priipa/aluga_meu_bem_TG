@@ -13,6 +13,7 @@ rules_version = '2';
 //   - telefone: string no formato da máscara do cadastro
 //   - termos: map { versao, aceitoEm }
 //   - locador: map { habilitado, habilitadoEm, versaoTermos, termosAceitosEm }
+// Update do dono: somente ativação de locador, registrando o aceite dos termos.
 //   - criadoEm / atualizadoEm: timestamp (serverTimestamp)
 // Contas antigas podem ter `cidade` e não ter `termos`/`locador`.
 // O get do dono não valida schema para preservar login.
@@ -36,7 +37,18 @@ rules_version = '2';
 //   - usuarioId, condominioId, unidade { bloco, apartamento }
 //   - status: 'ativo' no create desta etapa
 //   - criadoEm / atualizadoEm: timestamp (serverTimestamp)
-// Só create. Sem get/list/update/delete nesta etapa.
+// Leitura: get e list somente quando resource.data.usuarioId == request.auth.uid.
+// A query do app restringe usuarioId == uid e status == 'ativo'.
+// Sem update/delete nesta etapa.
+//
+// Collection: anuncios
+// Document ID: gerado pelo cliente na criação.
+// Fields informados: titulo, descricao, categoria, valorDiaria,
+//   porQueAlugar, acompanha, condicoes.
+// Fields automáticos: proprietarioId, condominioId, vinculoId, nomeExibicao,
+//   status ('ativo'), disponivel (true), criadoEm, atualizadoEm.
+// Sem imagens nesta etapa. Sem get/list/update/delete.
+// A leitura fica fechada até a consulta do feed por condomínio.
 //
 // ===============================================================
 
@@ -92,6 +104,28 @@ service cloud.firestore {
 
       allow create: if ehDono(usuarioId) && usuarioNovoValido();
 
+      allow update: if ehDono(usuarioId) && ativacaoLocadorValida();
+
+      function ativacaoLocadorValida() {
+        let antes = resource.data;
+        let depois = request.resource.data;
+        return depois.diff(antes).affectedKeys().hasOnly(['locador', 'atualizadoEm'])
+          && timestampDoServidor(depois.atualizadoEm)
+          && locadorAtivado(antes.locador, depois.locador);
+      }
+
+      function locadorAtivado(antes, depois) {
+        return mapaExato(depois, [
+             'habilitado', 'habilitadoEm',
+             'versaoTermos', 'termosAceitosEm'
+           ])
+          && antes.habilitado == false
+          && depois.habilitado == true
+          && timestampDoServidor(depois.habilitadoEm)
+          && timestampDoServidor(depois.termosAceitosEm)
+          && texto(depois.versaoTermos, 1, 20);
+      }
+
       function usuarioNovoValido() {
         let d = request.resource.data;
         return mapaExato(d, [
@@ -136,6 +170,9 @@ service cloud.firestore {
     }
 
     match /vinculos/{vinculoId} {
+      allow get, list: if autenticado()
+        && resource.data.usuarioId == request.auth.uid;
+
       allow create: if autenticado() && vinculoNovoValido();
 
       function vinculoNovoValido() {
@@ -158,6 +195,79 @@ service cloud.firestore {
         return mapaExato(unidade, ['bloco', 'apartamento'])
           && texto(unidade.bloco, 1, 40)
           && texto(unidade.apartamento, 1, 20);
+      }
+    }
+
+    match /anuncios/{anuncioId} {
+      allow create: if autenticado() && anuncioNovoValido();
+
+      function anuncioNovoValido() {
+        let d = request.resource.data;
+        return mapaExato(d, [
+             'titulo', 'descricao', 'categoria', 'valorDiaria',
+             'porQueAlugar', 'acompanha', 'condicoes', 'imagens',
+             'proprietarioId', 'condominioId', 'vinculoId', 'nomeExibicao',
+             'status', 'disponivel', 'criadoEm', 'atualizadoEm'
+           ])
+          && d.proprietarioId == request.auth.uid
+          && locadorHabilitado()
+          && vinculoDoAnuncioConfere(d)
+          && d.status == 'ativo'
+          && d.disponivel == true
+          && timestampDoServidor(d.criadoEm)
+          && timestampDoServidor(d.atualizadoEm)
+          && imagensDoAnuncio(d.imagens)
+          && categoriaDeAnuncio(d.categoria)
+          && d.valorDiaria is number
+          && d.valorDiaria > 0
+          && textoPreenchido(d.titulo, 80)
+          && textoPreenchido(d.descricao, 500)
+          && textoPreenchido(d.porQueAlugar, 500)
+          && textoOpcional(d.acompanha, 500)
+          && textoOpcional(d.condicoes, 500)
+          && textoPreenchido(d.nomeExibicao, 40)
+          && texto(d.condominioId, 1, 80)
+          && texto(d.vinculoId, 1, 200);
+      }
+
+      function locadorHabilitado() {
+        let caminho = /databases/$(database)/documents/usuarios/$(request.auth.uid);
+        return exists(caminho)
+          && get(caminho).data.locador.habilitado == true;
+      }
+
+      function vinculoDoAnuncioConfere(d) {
+        let caminho = /databases/$(database)/documents/vinculos/$(d.vinculoId);
+        return d.vinculoId == request.auth.uid + '_' + d.condominioId
+          && exists(caminho)
+          && get(caminho).data.usuarioId == request.auth.uid
+          && get(caminho).data.condominioId == d.condominioId
+          && get(caminho).data.status == 'ativo';
+      }
+
+      function imagensDoAnuncio(valor) {
+        return valor is list
+          && valor.size() >= 1
+          && valor.size() <= 3
+          && valor[0] is string
+          && valor[0].size() > 0
+          && (valor.size() < 2 || (valor[1] is string && valor[1].size() > 0))
+          && (valor.size() < 3 || (valor[2] is string && valor[2].size() > 0));
+      }
+
+      function categoriaDeAnuncio(valor) {
+        return valor in ['Casa', 'Eletrônicos', 'Esporte', 'Ferramentas'];
+      }
+
+      function textoPreenchido(valor, max) {
+        return valor is string
+          && valor.size() > 0
+          && valor.size() <= max
+          && valor.matches('.*\\S.*');
+      }
+
+      function textoOpcional(valor, max) {
+        return valor is string && valor.size() <= max;
       }
     }
   }
