@@ -177,7 +177,12 @@
         <input type="checkbox" formControlName="aceitaTermos" />
         <span>
           Li e aceito os
-          <a routerLink="/termos" (click)="guardarRascunho()">Termos de Uso</a>
+          <a
+            routerLink="/termos"
+            [queryParams]="{ origem: 'cadastro' }"
+            (click)="guardarRascunho()"
+            >Termos de Uso</a
+          >
           (versão {{ versaoTermos }}).
         </span>
       </label>

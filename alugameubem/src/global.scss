@@ -209,3 +209,17 @@ ion-modal.modal-locador::part(content) {
   color: var(--amb-neutral);
   cursor: not-allowed;
 }
+
+.caixa-locador .versao-locador {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--amb-secondary);
+}
+
+.acoes-locador.acoes-consulta {
+  grid-template-columns: 1fr;
+}
+
+.acoes-locador.acoes-consulta button {
+  color: var(--amb-secondary);
+}

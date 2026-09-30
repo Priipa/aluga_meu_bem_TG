@@ -8,18 +8,45 @@
   margin-bottom: 16px;
 }
 
+.resumo {
+  flex: 1;
+  min-width: 0;
+}
+
 .hero-card h2 {
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 22px;
 }
 
-.hero-card p {
-  margin: 0;
+.editar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  color: var(--amb-secondary);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.avatar {
+.editar ion-icon {
+  font-size: 18px;
+}
+
+.marca-usuario {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
   width: 64px;
   height: 64px;
+  border-radius: 50%;
+  background: #e9fad9;
+  color: var(--amb-secondary);
+}
+
+.marca-usuario ion-icon {
+  font-size: 32px;
 }
 
 .erro {
@@ -29,13 +56,37 @@
   font-weight: 600;
 }
 
-.menu {
-  background: #fff;
-  border-radius: 16px;
-  padding: 14px 16px;
-  margin: 16px 0;
+.grupo {
+  margin-bottom: 18px;
 }
 
-.menu p {
-  margin: 0 0 8px;
+.acoes {
+  overflow: hidden;
+  background: #fff;
+  border-radius: 16px;
+}
+
+.acao {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--amb-border);
+  background: transparent;
+  color: var(--amb-ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+}
+
+.acao:last-child {
+  border-bottom: 0;
+}
+
+.sair {
+  margin-top: 8px;
 }

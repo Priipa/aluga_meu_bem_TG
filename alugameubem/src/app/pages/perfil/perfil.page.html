@@ -7,29 +7,17 @@
 <ion-content [fullscreen]="true">
   <div class="page-pad">
     <div class="hero-card">
-      <img class="avatar" src="https://i.pravatar.cc/120?img=68" alt="Foto do perfil" />
-      <div>
-        <h2>{{ perfil()?.name || 'Visitante' }}</h2>
-        @if (perfil()?.city) {
-          <p>{{ perfil()?.city }}</p>
-        }
+      <div class="marca-usuario" aria-hidden="true">
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+      <div class="resumo">
+        <h2>Olá, {{ nomeCurto() }}</h2>
+        <a class="editar" routerLink="/tabs/dados-pessoais">
+          <span>Editar dados</span>
+          <ion-icon name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
       </div>
     </div>
-
-    @if (ehLocador()) {
-      <ion-button expand="block" class="btn-pill btn-lime" routerLink="/tabs/anunciar">
-        Publicar um item
-      </ion-button>
-    } @else {
-      <ion-button
-        expand="block"
-        class="btn-pill btn-lime"
-        (click)="abrirAtivacao()"
-        [disabled]="ativando()"
-      >
-        Quero ser um locador(a)
-      </ion-button>
-    }
 
     @if (erroAtivacao()) {
       <p class="erro">{{ erroAtivacao() }}</p>
@@ -39,18 +27,35 @@
       <p class="erro">{{ erroSessao() }}</p>
     }
 
-    <div class="menu">
-      <p>E-mail: {{ perfil()?.email || 'não informado' }}</p>
-      @if (perfil()?.phone) {
-        <p>Telefone: {{ perfil()?.phone }}</p>
-      }
+    <section class="grupo">
+      <h2 class="section-title">Locação</h2>
       @if (ehLocador()) {
-        <p>Função de locador ativa</p>
+        <div class="acoes">
+          <a class="acao" routerLink="/tabs/anunciar">Publicar um item</a>
+          <button type="button" class="acao" (click)="abrirConsultaLocador()">
+            Termos e condições do locador
+          </button>
+        </div>
+      } @else {
+        <ion-button
+          expand="block"
+          class="btn-pill btn-lime"
+          (click)="abrirAtivacao()"
+          [disabled]="ativando()"
+        >
+          Quero ser um locador(a)
+        </ion-button>
       }
-      <p>Alugue, compartilhe e economize com a vizinhança.</p>
-    </div>
+    </section>
 
-    <ion-button expand="block" fill="outline" class="btn-pill btn-outlined" (click)="logout()">
+    <section class="grupo">
+      <h2 class="section-title">Termos</h2>
+      <div class="acoes">
+        <a class="acao" routerLink="/termos" [queryParams]="{ origem: 'perfil' }">Termos de Uso</a>
+      </div>
+    </section>
+
+    <ion-button expand="block" fill="outline" class="btn-pill btn-outlined sair" (click)="logout()">
       Sair
     </ion-button>
   </div>
@@ -65,13 +70,9 @@
   <ng-template>
     <div class="caixa-locador" (keydown.enter)="impedirEnterSemAceite($event)">
       <h2>Quero ser um locador(a)</h2>
-      <p>
-        Ao se tornar locador, você poderá cadastrar itens para aluguel no seu condomínio.
-      </p>
-      <p>
-        Você será responsável pelas informações dos itens anunciados, pelas condições de uso e
-        conservação e pelo cumprimento das regras aplicáveis aos seus aluguéis.
-      </p>
+      @for (paragrafo of paragrafosTermosLocador; track paragrafo) {
+        <p>{{ paragrafo }}</p>
+      }
       <label class="aceite-locador">
         <input type="checkbox" [checked]="aceiteLocador()" (change)="definirAceite($event)" />
         <span>Li e aceito os Termos, Condições e Responsabilidades do Locador.</span>
@@ -81,6 +82,26 @@
         <button type="button" [disabled]="!aceiteLocador()" (click)="concluirAtivacao()">
           Confirmar
         </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  class="modal-locador modal-consulta"
+  [isOpen]="consultaLocador()"
+  [backdropDismiss]="true"
+  (didDismiss)="fecharConsultaLocador()"
+>
+  <ng-template>
+    <div class="caixa-locador">
+      <h2>Termos e condições do locador</h2>
+      <p class="versao-locador">Versão {{ versaoTermosLocador }}</p>
+      @for (paragrafo of paragrafosTermosLocador; track paragrafo) {
+        <p>{{ paragrafo }}</p>
+      }
+      <div class="acoes-locador acoes-consulta">
+        <button type="button" (click)="fecharConsultaLocador()">Fechar</button>
       </div>
     </div>
   </ng-template>

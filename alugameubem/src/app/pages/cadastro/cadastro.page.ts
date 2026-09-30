@@ -23,7 +23,9 @@ import { chevronBackOutline, eyeOffOutline, eyeOutline, shieldCheckmarkOutline }
 import { AutenticacaoService } from '../../core/autenticacao.service';
 import { CondominioService } from '../../core/condominio.service';
 import { CondominioOpcao } from '../../core/models';
+import { formatarNomeTitulo } from '../../core/nome';
 import { RascunhoCadastroService } from '../../core/rascunho-cadastro.service';
+import { mascararTelefone, telefoneMascaradoValidator } from '../../core/telefone';
 import { VERSAO_TERMOS_GERAIS } from '../../core/termos';
 
 type CampoEtapa1 = 'name' | 'email' | 'password' | 'confirmPassword' | 'cpf' | 'phone';
@@ -75,12 +77,12 @@ export class CadastroPage implements OnInit {
   readonly condominios = signal<CondominioOpcao[]>([]);
 
   readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     email: ['', [Validators.required, emailValidoValidator]],
     password: ['', [Validators.required, senhaForteValidator]],
     confirmPassword: ['', [Validators.required, confirmarSenhaValidator]],
     cpf: ['', [Validators.required, cpfValidoValidator]],
-    phone: ['', [Validators.required, Validators.minLength(14)]],
+    phone: ['', [Validators.required, telefoneMascaradoValidator]],
     condominioId: ['', [Validators.required]],
     bloco: ['', [textoUnidadeValidator(40)]],
     apartamento: ['', [textoUnidadeValidator(20)]],
@@ -140,14 +142,11 @@ export class CadastroPage implements OnInit {
   }
 
   maskPhone(event: Event): void {
-    const digits = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 11);
-    const ddd = digits.slice(0, 2);
-    const mid = digits.slice(2, 7);
-    const end = digits.slice(7, 11);
-    let value = digits;
-    if (digits.length > 2) value = `(${ddd}) ${mid}`;
-    if (digits.length > 7) value = `(${ddd}) ${mid}-${end}`;
-    this.form.controls.phone.setValue(value);
+    const entrada = event.target;
+    if (!(entrada instanceof HTMLInputElement)) {
+      return;
+    }
+    this.form.controls.phone.setValue(mascararTelefone(entrada.value));
   }
 
   formatarUnidade(campo: 'bloco' | 'apartamento'): void {
@@ -183,12 +182,15 @@ export class CadastroPage implements OnInit {
       if (campo === 'name') {
         return 'Informe seu nome completo.';
       }
-      if (campo === 'phone') {
-        return 'Informe um telefone válido.';
-      }
       return 'A senha deve ter no mínimo 6 caracteres.';
     }
+    if (erros['telefoneInvalido']) {
+      return 'Informe um telefone válido.';
+    }
     if (erros['maxlength']) {
+      if (campo === 'name') {
+        return 'Informe um nome com no máximo 80 caracteres.';
+      }
       return campo === 'bloco'
         ? 'Informe um bloco ou torre mais curto.'
         : 'Informe um apartamento mais curto.';
@@ -332,16 +334,6 @@ function textoUnidadeValidator(maximo: number) {
     }
     return null;
   };
-}
-
-function formatarNomeTitulo(valor: string): string {
-  return valor
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLocaleLowerCase('pt-BR')
-    .replace(/(^|[\s'-])(\p{L})/gu, (_match, separador: string, letra: string) => {
-      return separador + letra.toLocaleUpperCase('pt-BR');
-    });
 }
 
 function emailValidoValidator(control: AbstractControl): ValidationErrors | null {

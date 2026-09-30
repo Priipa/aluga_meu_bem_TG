@@ -51,6 +51,12 @@ export const routes: Routes = [
         canActivate: [guardAutenticado],
         loadComponent: () => import('./pages/perfil/perfil.page').then((m) => m.PerfilPage),
       },
+      {
+        path: 'dados-pessoais',
+        canActivate: [guardAutenticado],
+        loadComponent: () =>
+          import('./pages/dados-pessoais/dados-pessoais.page').then((m) => m.DadosPessoaisPage),
+      },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },

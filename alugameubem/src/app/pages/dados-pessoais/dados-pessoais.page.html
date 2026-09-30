@@ -1,0 +1,59 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" routerLink="/tabs/perfil" aria-label="Voltar ao perfil">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Dados pessoais</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <form class="page-pad" [formGroup]="form" (ngSubmit)="salvar()">
+    <label class="lab" for="nome">Nome</label>
+    <input
+      id="nome"
+      class="box"
+      [class.invalid]="exibirErro('nome')"
+      formControlName="nome"
+      autocomplete="name"
+      (blur)="formatarNome()"
+    />
+    @if (exibirErro('nome')) {
+      <p class="hint-erro">{{ textoErro('nome') }}</p>
+    }
+
+    <label class="lab" for="email">E-mail</label>
+    <input id="email" class="box leitura" type="email" [value]="perfil()?.email || ''" readonly />
+
+    <label class="lab" for="telefone">Telefone</label>
+    <input
+      id="telefone"
+      class="box"
+      [class.invalid]="exibirErro('telefone')"
+      formControlName="telefone"
+      inputmode="tel"
+      autocomplete="tel"
+      placeholder="(00) 00000-0000"
+      (input)="mascararTelefone($event)"
+    />
+    @if (exibirErro('telefone')) {
+      <p class="hint-erro">{{ textoErro('telefone') }}</p>
+    }
+
+    @if (mensagemErro()) {
+      <p class="erro">{{ mensagemErro() }}</p>
+    }
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+    @if (mensagemSucesso()) {
+      <p class="ok">{{ mensagemSucesso() }}</p>
+    }
+
+    <ion-button expand="block" type="submit" class="btn-pill btn-lime" [disabled]="carregando() || !podeSalvar()">
+      {{ carregando() ? 'Salvando...' : 'Salvar alterações' }}
+    </ion-button>
+  </form>
+</ion-content>

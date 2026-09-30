@@ -23,6 +23,7 @@ import {
 } from 'firebase/firestore';
 import { autenticacaoFirebase, bancoFirestore } from './firebase';
 import { Locador, UserProfile, Vinculo } from './models';
+import { formatarNomeTitulo } from './nome';
 import { VERSAO_TERMOS_GERAIS, VERSAO_TERMOS_LOCADOR } from './termos';
 
 export interface DadosCadastro {
@@ -206,6 +207,56 @@ export class AutenticacaoService {
           versaoTermos: VERSAO_TERMOS_LOCADOR,
         },
       });
+    }
+  }
+
+  /**
+   * Grava nome e telefone no Firestore e só então alinha o displayName.
+   * Se o Auth falhar depois do Firestore, a sessão já reflete o documento.
+   */
+  async atualizarDadosPessoais(dados: {
+    nome: string;
+    telefone: string;
+  }): Promise<'salvo' | 'salvo-sem-auth'> {
+    const usuario = this.usuarioFirebase();
+    const perfil = this.dadosPerfil();
+    if (!usuario || !perfil) {
+      throw this.erroComCodigo('perfil/nao-carregado');
+    }
+
+    const nome = formatarNomeTitulo(dados.nome);
+    const telefone = dados.telefone.trim();
+    if (nome === perfil.name && telefone === (perfil.phone ?? '')) {
+      return 'salvo';
+    }
+
+    await updateDoc(doc(bancoFirestore, COLECAO_USUARIOS, usuario.uid), {
+      nome,
+      telefone,
+      atualizadoEm: serverTimestamp(),
+    });
+
+    try {
+      await this.aplicarPerfilRemoto(usuario);
+    } catch {
+      if (this.usuarioFirebase()?.uid === usuario.uid) {
+        this.dadosPerfil.set({
+          ...perfil,
+          name: nome,
+          phone: telefone,
+        });
+      }
+    }
+
+    if (nome === perfil.name) {
+      return 'salvo';
+    }
+
+    try {
+      await updateProfile(usuario, { displayName: nome });
+      return 'salvo';
+    } catch {
+      return 'salvo-sem-auth';
     }
   }
 
