@@ -2,8 +2,8 @@
   <ion-toolbar>
     <ion-title>Itens para alugar</ion-title>
     <ion-buttons slot="end">
-      <button type="button" class="map-btn" (click)="showMap.set(!showMap())" aria-label="Ver no mapa">
-        <ion-icon name="map-outline"></ion-icon>
+      <button type="button" class="botao-topo" aria-label="Notificações">
+        <ion-icon name="notifications-outline"></ion-icon>
       </button>
     </ion-buttons>
   </ion-toolbar>
@@ -27,30 +27,66 @@
           [class.on]="activeFilter() === filter.key"
           (click)="setFilter(filter.key)"
         >
-          {{ filter.label }}
+          {{ rotuloFiltro(filter) }}
           <ion-icon name="chevron-down"></ion-icon>
         </button>
       }
     </div>
 
-    @if (showMap()) {
-      <div class="map-panel">Mapa dos itens próximos</div>
-    }
-
-    <div class="grid">
-      @for (item of items(); track item.id) {
-        <a class="card" [routerLink]="['/item', item.id]">
-          <div class="photo">
-            <img [src]="item.image" [alt]="item.title" />
-            <button type="button" class="fav" (click)="toggleFav(item.id, $event)" [attr.aria-label]="'Favoritar ' + item.title">
-              <ion-icon [name]="isFav(item.id) ? 'heart' : 'heart-outline'"></ion-icon>
-            </button>
-          </div>
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.location }}</p>
-          <strong>{{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
-        </a>
+    @switch (estado()) {
+      @case ('sessao') {
+        <p class="estado">Carregando...</p>
       }
-    </div>
+      @case ('visitante') {
+        <p class="estado">Entre na sua conta para ver os itens do condomínio.</p>
+      }
+      @case ('ausente') {
+        <p class="estado">Não encontramos um vínculo ativo com um condomínio.</p>
+      }
+      @case ('inconsistente') {
+        <p class="estado">Não foi possível determinar um único condomínio ativo.</p>
+      }
+      @case ('erro-vinculo') {
+        <p class="estado">Não foi possível confirmar seu condomínio.</p>
+      }
+      @case ('carregando') {
+        <p class="estado">Carregando itens...</p>
+      }
+      @case ('erro-leitura') {
+        <p class="estado">Não foi possível carregar os itens.</p>
+      }
+      @case ('vazio') {
+        <p class="estado">Nenhum item disponível no momento.</p>
+      }
+      @case ('lista') {
+        <div class="grid">
+          @for (item of itens(); track item.id) {
+            <a class="card" [routerLink]="['/item', item.id]">
+              <div class="photo">
+                @if (capaVisivel(item)) {
+                  <img
+                    [src]="item.imagens[0]"
+                    [alt]="item.titulo"
+                    (error)="registrarFalhaDaCapa(item.id)"
+                  />
+                } @else {
+                  <div class="photo-fallback" role="img" [attr.aria-label]="item.titulo"></div>
+                }
+                <button
+                  type="button"
+                  class="fav"
+                  (click)="toggleFav(item.id, $event)"
+                  [attr.aria-label]="'Favoritar ' + item.titulo"
+                >
+                  <ion-icon [name]="isFav(item.id) ? 'heart' : 'heart-outline'"></ion-icon>
+                </button>
+              </div>
+              <h3>{{ item.titulo }}</h3>
+              <strong>{{ item.valorDiaria | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+            </a>
+          }
+        </div>
+      }
+    }
   </div>
 </ion-content>
