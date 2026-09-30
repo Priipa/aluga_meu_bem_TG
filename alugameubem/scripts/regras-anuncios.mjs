@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -80,6 +81,23 @@ async function tentarCriar(banco, parcial = {}) {
   return setDoc(doc(banco, `anuncios/item-${sequencia}`), anuncio(parcial));
 }
 
+function consultaFeed(banco, condominioId) {
+  return query(
+    collection(banco, 'anuncios'),
+    where('condominioId', '==', condominioId),
+    where('status', '==', 'ativo'),
+    where('disponivel', '==', true),
+    orderBy('criadoEm', 'desc'),
+  );
+}
+
+async function negadoPorRegra(operacao) {
+  const erro = await assertFails(operacao);
+  if (erro?.code !== 'permission-denied') {
+    throw new Error(`esperava permission-denied, recebeu ${erro?.code ?? 'sem código'}: ${erro?.message ?? erro}`);
+  }
+}
+
 await ambiente.withSecurityRulesDisabled(async (contexto) => {
   const banco = contexto.firestore();
   await setDoc(doc(banco, 'condominios/cond-b'), {
@@ -118,6 +136,13 @@ await ambiente.withSecurityRulesDisabled(async (contexto) => {
   await setDoc(doc(banco, 'vinculos/uidLocador_cond-a'), vinculo('uidLocador', 'cond-a'));
   await setDoc(doc(banco, 'vinculos/uidComum_cond-a'), vinculo('uidComum', 'cond-a'));
   await setDoc(doc(banco, 'vinculos/uidInativo_cond-a'), vinculo('uidInativo', 'cond-a', 'inativo'));
+  await setDoc(doc(banco, 'anuncios/pausado'), anuncio({ status: 'pausado' }));
+  await setDoc(doc(banco, 'anuncios/indisponivel'), anuncio({ disponivel: false }));
+  await setDoc(doc(banco, 'anuncios/outro-condominio'), anuncio({
+    proprietarioId: 'uidOutro',
+    condominioId: 'cond-c',
+    vinculoId: 'uidOutro_cond-c',
+  }));
 });
 
 const locador = ambiente.authenticatedContext('uidLocador').firestore();
@@ -214,9 +239,79 @@ console.log('negado: URL vazia');
 await assertFails(tentarCriar(locador, { image: 'https://exemplo/foto.jpg' }));
 console.log('negado: campo extra');
 
-await assertFails(getDoc(doc(locador, 'anuncios/item-1')));
-await assertFails(getDocs(collection(locador, 'anuncios')));
-console.log('negado: leitura de anúncios');
+const anuncioDoDono = await assertSucceeds(getDoc(doc(locador, 'anuncios/item-1')));
+const anuncioDoMorador = await assertSucceeds(getDoc(doc(comum, 'anuncios/item-1')));
+if (!anuncioDoDono.exists() || !anuncioDoMorador.exists() || anuncioDoMorador.id !== 'item-1') {
+  throw new Error('get do anúncio ativo do mesmo condomínio falhou');
+}
+console.log('permitido: get do morador e do proprietário no mesmo condomínio');
+
+await negadoPorRegra(getDoc(doc(visitante, 'anuncios/item-1')));
+await negadoPorRegra(getDocs(collection(locador, 'anuncios')));
+console.log('negado: get de visitante e listagem da coleção inteira');
+
+const feedComum = await assertSucceeds(getDocs(consultaFeed(comum, 'cond-a')));
+const idsComum = feedComum.docs.map((item) => item.id);
+if (!idsComum.includes('item-1')) {
+  throw new Error('feed do condomínio não trouxe o anúncio ativo');
+}
+if (
+  idsComum.includes('pausado') ||
+  idsComum.includes('indisponivel') ||
+  idsComum.includes('outro-condominio')
+) {
+  throw new Error(`feed incluiu anúncio fora da consulta: ${idsComum.join(',')}`);
+}
+const feedLocador = await assertSucceeds(getDocs(consultaFeed(locador, 'cond-a')));
+if (!feedLocador.docs.some((item) => item.id === 'item-1')) {
+  throw new Error('anúncio do próprio usuário ficou de fora do feed');
+}
+console.log('permitido: listagem do condomínio com vínculo ativo');
+
+await negadoPorRegra(getDocs(consultaFeed(visitante, 'cond-a')));
+console.log('negado: visitante na listagem');
+
+const semVinculo = ambiente.authenticatedContext('uidSemVinculo').firestore();
+await negadoPorRegra(getDocs(consultaFeed(semVinculo, 'cond-a')));
+console.log('negado: usuário sem vínculo');
+
+await negadoPorRegra(getDocs(consultaFeed(inativo, 'cond-a')));
+console.log('negado: vínculo inativo');
+
+await negadoPorRegra(getDocs(consultaFeed(comum, 'cond-c')));
+await negadoPorRegra(getDocs(consultaFeed(locador, 'cond-c')));
+console.log('negado: outro condomínio');
+
+await negadoPorRegra(getDoc(doc(semVinculo, 'anuncios/item-1')));
+await negadoPorRegra(getDoc(doc(inativo, 'anuncios/item-1')));
+await negadoPorRegra(getDoc(doc(comum, 'anuncios/outro-condominio')));
+await negadoPorRegra(getDoc(doc(locador, 'anuncios/outro-condominio')));
+await negadoPorRegra(getDoc(doc(locador, 'anuncios/pausado')));
+await negadoPorRegra(getDoc(doc(comum, 'anuncios/pausado')));
+await negadoPorRegra(getDoc(doc(locador, 'anuncios/indisponivel')));
+await negadoPorRegra(getDoc(doc(comum, 'anuncios/indisponivel')));
+console.log('negado: get sem vínculo, vínculo inativo, outro condomínio, pausado ou indisponível');
+
+await negadoPorRegra(getDocs(query(
+  collection(comum, 'anuncios'),
+  where('status', '==', 'ativo'),
+  where('disponivel', '==', true),
+)));
+console.log('negado: query sem condominioId');
+
+await negadoPorRegra(getDocs(query(
+  collection(comum, 'anuncios'),
+  where('condominioId', '==', 'cond-a'),
+  where('disponivel', '==', true),
+)));
+console.log('negado: query sem status ativo');
+
+await negadoPorRegra(getDocs(query(
+  collection(comum, 'anuncios'),
+  where('condominioId', '==', 'cond-a'),
+  where('status', '==', 'ativo'),
+)));
+console.log('negado: query sem disponivel true');
 
 await assertFails(updateDoc(doc(locador, 'anuncios/item-1'), { titulo: 'Outro' }));
 await assertFails(deleteDoc(doc(locador, 'anuncios/item-1')));

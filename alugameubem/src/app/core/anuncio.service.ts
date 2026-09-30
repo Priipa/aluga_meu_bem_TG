@@ -1,10 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { StorageReference, deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import {
   DadosFormularioAnuncio,
   prepararAnuncio,
 } from './anuncio-documento';
+import { anuncioDaLeitura } from './anuncio-lista';
+import { Anuncio } from './models';
 import { TIPO_FOTO_PUBLICADA, caminhoFotoAnuncio, nomeFotoPublicada, validarConjuntoDeFotos } from './anuncio-fotos';
 import { otimizarFoto } from './otimizar-foto';
 import { AutenticacaoService } from './autenticacao.service';
@@ -21,6 +23,48 @@ export class AnuncioService {
 
   solicitarFormulario(): void {
     this.pedidosDeFormulario.update((valor) => valor + 1);
+  }
+
+  /**
+   * Feed da Home: anúncios ativos e disponíveis do condomínio já resolvido na sessão.
+   * O id de cada item é o documentId e não é um campo do documento.
+   */
+  async listarDoCondominio(condominioId: string): Promise<Anuncio[]> {
+    if (!condominioId) {
+      return [];
+    }
+
+    const consulta = query(
+      collection(bancoFirestore, COLECAO_ANUNCIOS),
+      where('condominioId', '==', condominioId),
+      where('status', '==', 'ativo'),
+      where('disponivel', '==', true),
+      orderBy('criadoEm', 'desc'),
+    );
+    const snapshot = await getDocs(consulta);
+    const anuncios: Anuncio[] = [];
+    for (const documento of snapshot.docs) {
+      const anuncio = anuncioDaLeitura(documento.id, documento.data() as Record<string, unknown>);
+      if (anuncio) {
+        anuncios.push(anuncio);
+      }
+    }
+    return anuncios;
+  }
+
+  /**
+   * Leitura de um anúncio pelo documentId.
+   * A autorização do condomínio fica nas Firestore Rules.
+   */
+  async obter(anuncioId: string): Promise<Anuncio | null> {
+    if (!anuncioId) {
+      return null;
+    }
+    const snapshot = await getDoc(doc(bancoFirestore, COLECAO_ANUNCIOS, anuncioId));
+    if (!snapshot.exists()) {
+      return null;
+    }
+    return anuncioDaLeitura(snapshot.id, snapshot.data() as Record<string, unknown>);
   }
 
   async publicar(dados: DadosFormularioAnuncio, fotos: File[]): Promise<string> {
