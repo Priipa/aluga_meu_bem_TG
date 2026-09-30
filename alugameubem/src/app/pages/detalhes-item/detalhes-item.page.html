@@ -17,6 +17,14 @@
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
+      @if (item.images.length > 1) {
+        <button type="button" class="nav-foto nav-foto-esq" (click)="imagemAnterior(item.images.length, $event)" aria-label="Imagem anterior">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button type="button" class="nav-foto nav-foto-dir" (click)="proximaImagem(item.images.length, $event)" aria-label="Próxima imagem">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+      }
       <div class="dots">
         @for (img of item.images; track img; let i = $index) {
           <button type="button" [class.on]="i === imageIndex()" (click)="setImage(i)"></button>
@@ -114,5 +122,96 @@
       </div>
       <ion-button class="btn-pill btn-lime" (click)="rent()">Alugar agora</ion-button>
     </div>
+  </ion-content>
+} @else if (anuncioReal(); as anuncio) {
+  <ion-content [fullscreen]="true">
+    <div class="hero">
+      @if (fotoAtual(anuncio); as foto) {
+        <img [src]="foto" [alt]="anuncio.titulo" (error)="registrarFalhaDaFoto(anuncio.imagens.length)" />
+      } @else {
+        <div class="hero-fallback" role="img" [attr.aria-label]="anuncio.titulo"></div>
+      }
+      <ion-header class="overlay">
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-back-button text="" defaultHref="/tabs/home"></ion-back-button>
+          </ion-buttons>
+          <ion-buttons slot="end">
+            <ion-button (click)="toggleFavReal($event)" [attr.aria-label]="'Favoritar ' + anuncio.titulo">
+              <ion-icon slot="icon-only" [name]="ehFavReal() ? 'heart' : 'heart-outline'"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      @if (anuncio.imagens.length > 1) {
+        <button type="button" class="nav-foto nav-foto-esq" (click)="imagemAnterior(anuncio.imagens.length, $event)" aria-label="Imagem anterior">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button type="button" class="nav-foto nav-foto-dir" (click)="proximaImagem(anuncio.imagens.length, $event)" aria-label="Próxima imagem">
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+        <div class="dots">
+          @for (img of anuncio.imagens; track img; let i = $index) {
+            <button type="button" [class.on]="i === indiceDaFoto(anuncio.imagens.length)" (click)="setImage(i)"></button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="body">
+      <h1>{{ anuncio.titulo }}</h1>
+      <div class="chips">
+        <span class="chip">{{ anuncio.categoria }}</span>
+      </div>
+
+      <h2 class="section-title">Descrição</h2>
+      <h3 class="sub">O que é?</h3>
+      <p>{{ anuncio.descricao }}</p>
+      <h3 class="sub">Por que alugar?</h3>
+      <p>{{ anuncio.porQueAlugar }}</p>
+      @if (anuncio.acompanha.trim()) {
+        <h3 class="sub">O que acompanha</h3>
+        <p>{{ anuncio.acompanha }}</p>
+      }
+
+      <h2 class="section-title">Locador</h2>
+      <p class="proprietario">{{ anuncio.nomeExibicao }}</p>
+
+      @if (anuncio.condicoes.trim()) {
+        <h2 class="section-title">Condições de aluguel</h2>
+        <p>{{ anuncio.condicoes }}</p>
+      }
+
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <div class="bar">
+      <div>
+        <span>Total</span>
+        <strong>{{ anuncio.valorDiaria | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+      </div>
+    </div>
+  </ion-content>
+} @else {
+  <ion-header class="ion-no-border">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-back-button text="" defaultHref="/tabs/home"></ion-back-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content [fullscreen]="true">
+    <p class="estado-detalhe">
+      @switch (estadoReal()) {
+        @case ('sessao') { Carregando... }
+        @case ('visitante') { Entre na sua conta para ver este anúncio. }
+        @case ('ausente') { Não encontramos um vínculo ativo com um condomínio. }
+        @case ('inconsistente') { Não foi possível determinar um único condomínio ativo. }
+        @case ('erro-vinculo') { Não foi possível confirmar seu condomínio. }
+        @case ('carregando') { Carregando... }
+        @case ('inacessivel') { Não foi possível abrir este anúncio. }
+        @case ('erro') { Não foi possível abrir este anúncio. Tente novamente. }
+      }
+    </p>
   </ion-content>
 }
