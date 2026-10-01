@@ -60,8 +60,7 @@ Serviços utilizados:
 
 - **Firebase Authentication** — cadastro, login e gerenciamento da autenticação;
 - **Cloud Firestore** — armazenamento dos dados da aplicação;
-- **Firebase Storage** — armazenamento das imagens dos anúncios;
-- **Firebase Hosting** — hospedagem da aplicação web.
+- **Firebase Storage** — armazenamento das imagens dos anúncios.
 
 ---
 
@@ -79,8 +78,7 @@ Firebase SDK
 Firebase
 ├── Authentication
 ├── Firestore
-├── Storage
-└── Hosting
+└── Storage
 ```
 
 As páginas e componentes são responsáveis pela interface com o usuário, enquanto os serviços centralizam regras de acesso e comunicação com os recursos do Firebase.
@@ -89,13 +87,13 @@ A autorização dos dados não depende apenas do frontend. O projeto também uti
 
 ---
 
-## 📱 Plataformas
+## 📱 Plataforma
 
-A aplicação está sendo desenvolvida com foco em:
+A aplicação está sendo desenvolvida para:
 
-- 🌐 Web;
-- 📲 PWA;
 - 📱 Android.
+
+O produto final será disponibilizado em formato **APK**.
 
 ---
 
@@ -166,11 +164,8 @@ Firebase
 │   ├── Vínculos
 │   └── Anúncios
 │
-├── Storage
-│   └── Imagens dos anúncios
-│
-└── Hosting
-    └── Aplicação web
+└── Storage
+    └── Imagens dos anúncios
 ```
 
 A configuração do Firebase utilizada pelo frontend deve corresponder ao projeto Firebase que será utilizado no ambiente.
@@ -193,7 +188,7 @@ Após a compilação, o terminal informará o endereço local da aplicação, no
 http://localhost:8100
 ```
 
-Abra esse endereço no navegador.
+Abra esse endereço no navegador para executar e testar a aplicação durante o desenvolvimento.
 
 ---
 
@@ -310,12 +305,6 @@ firebase deploy --only firestore:indexes
 
 ```bash
 firebase deploy --only storage
-```
-
-### Hosting
-
-```bash
-firebase deploy --only hosting
 ```
 
 Evite executar um deploy geral sem verificar quais recursos serão alterados.
