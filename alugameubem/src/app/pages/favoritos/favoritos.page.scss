@@ -9,21 +9,45 @@
   color: inherit;
 }
 
-.card img {
+.photo {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.photo img,
+.photo-fallback {
   width: 100%;
   height: 124px;
   object-fit: cover;
-  border-radius: 14px;
+  display: block;
+}
+
+.photo-fallback {
+  background: linear-gradient(180deg, var(--amb-bg), var(--amb-border));
+}
+
+.fav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--amb-ink);
+  display: grid;
+  place-items: center;
+}
+
+.fav ion-icon {
+  font-size: 16px;
 }
 
 .card h3 {
   margin: 8px 0 2px;
   font-size: 14px;
-}
-
-.card p {
-  margin: 0 0 4px;
-  font-size: 12px;
 }
 
 .card strong {

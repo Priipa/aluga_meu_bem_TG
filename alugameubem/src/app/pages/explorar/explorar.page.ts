@@ -7,6 +7,8 @@ import {
   IonHeader,
   IonIcon,
   IonSearchbar,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
@@ -15,11 +17,9 @@ import { chevronDown, heart, heartOutline, notificationsOutline } from 'ionicons
 import { AnuncioService } from '../../core/anuncio.service';
 import { filtrarAnunciosDaHome } from '../../core/anuncio-lista';
 import { AutenticacaoService } from '../../core/autenticacao.service';
-import { CATEGORIAS } from '../../core/categorias';
+import { CATEGORIAS, categoriaValida } from '../../core/categorias';
 import { CatalogoService } from '../../core/catalogo.service';
 import { Anuncio } from '../../core/models';
-
-type FilterKey = 'categoria' | 'local' | 'preco' | 'disponibilidade';
 
 type EstadoHome =
   | 'sessao'
@@ -44,6 +44,8 @@ type EstadoHome =
     IonContent,
     IonIcon,
     IonSearchbar,
+    IonSelect,
+    IonSelectOption,
     RouterLink,
     CurrencyPipe,
   ],
@@ -55,21 +57,15 @@ export class ExplorarPage {
   private geracaoLista = 0;
 
   readonly query = signal('');
-  readonly activeFilter = signal<FilterKey>('categoria');
   readonly category = signal<string | null>(null);
+  readonly disponibilidadeAtiva = signal(false);
+  readonly categorias = CATEGORIAS;
   readonly favTick = signal(0);
   private readonly anuncios = signal<Anuncio[]>([]);
   private readonly carregandoAnuncios = signal(false);
   private readonly leituraPronta = signal(false);
   private readonly erroLeitura = signal(false);
   private readonly capasComFalha = signal<ReadonlySet<string>>(new Set());
-
-  readonly filters: { key: FilterKey; label: string }[] = [
-    { key: 'categoria', label: 'Categoria' },
-    { key: 'local', label: 'Local' },
-    { key: 'preco', label: 'Preço' },
-    { key: 'disponibilidade', label: 'Disponibilidade' },
-  ];
 
   readonly itens = computed(() =>
     filtrarAnunciosDaHome(this.anuncios(), this.query(), this.category()),
@@ -127,21 +123,13 @@ export class ExplorarPage {
     });
   }
 
-  rotuloFiltro(filtro: { key: FilterKey; label: string }): string {
-    if (filtro.key === 'categoria' && this.category()) {
-      return this.category() ?? filtro.label;
-    }
-    return filtro.label;
+  definirCategoria(evento: CustomEvent): void {
+    const valor = String(evento.detail.value ?? '');
+    this.category.set(categoriaValida(valor) ? valor : null);
   }
 
-  setFilter(key: FilterKey): void {
-    this.activeFilter.set(key);
-    if (key !== 'categoria') {
-      return;
-    }
-    const atual = this.category();
-    const indice = CATEGORIAS.findIndex((categoria) => categoria === atual);
-    this.category.set(CATEGORIAS[(indice + 1) % CATEGORIAS.length]);
+  alternarDisponibilidade(): void {
+    this.disponibilidadeAtiva.update((ativa) => !ativa);
   }
 
   capaVisivel(anuncio: Anuncio): boolean {
@@ -164,6 +152,10 @@ export class ExplorarPage {
     event.preventDefault();
     event.stopPropagation();
     this.catalogo.alternarFavorito(id);
+    this.favTick.update((n) => n + 1);
+  }
+
+  ionViewWillEnter(): void {
     this.favTick.update((n) => n + 1);
   }
 

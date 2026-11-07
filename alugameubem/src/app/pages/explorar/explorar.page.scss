@@ -27,7 +27,7 @@
   gap: 4px;
   height: 36px;
   padding: 0 12px;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid var(--amb-border);
   background: #fff;
   color: var(--amb-ink);
@@ -38,6 +38,44 @@
 .chip-btn.on {
   background: var(--amb-secondary);
   border-color: var(--amb-secondary);
+  color: #fff;
+}
+
+.chip-select {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+  min-height: 36px;
+  border-radius: 10px;
+  --border-radius: 10px;
+  border: 1px solid var(--amb-border);
+  background: #fff;
+  color: var(--amb-ink);
+  font-weight: 700;
+  font-size: 13px;
+  padding-inline: 12px 4px;
+  --placeholder-color: var(--amb-ink);
+  --placeholder-opacity: 1;
+}
+
+.chip-select::part(text),
+.chip-select::part(placeholder),
+.chip-select::part(icon) {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--amb-ink);
+}
+
+.chip-select.on {
+  background: var(--amb-secondary);
+  border-color: var(--amb-secondary);
+  color: #fff;
+  --placeholder-color: #fff;
+}
+
+.chip-select.on::part(text),
+.chip-select.on::part(placeholder),
+.chip-select.on::part(icon) {
   color: #fff;
 }
 

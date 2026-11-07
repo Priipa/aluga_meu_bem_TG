@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { ChatMessage, Item } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -415,6 +415,12 @@ export class CatalogoService {
       .filter((row): row is { item: Item; ultima: ChatMessage } => row !== null);
   }
 
+  /**
+   * IDs de documento já gravados em `amb.favoritos`.
+   * O conjunto é substituído a cada alteração para as abas em memória reagirem.
+   */
+  readonly idsFavoritos = signal<ReadonlySet<string>>(lerIdsFavoritos());
+
   alternarFavorito(id: string): void {
     const proximo = new Set(this.idsFavoritos());
     if (proximo.has(id)) {
@@ -422,6 +428,7 @@ export class CatalogoService {
     } else {
       proximo.add(id);
     }
+    this.idsFavoritos.set(proximo);
     localStorage.setItem('amb.favoritos', JSON.stringify([...proximo]));
   }
 
@@ -429,17 +436,19 @@ export class CatalogoService {
     return this.idsFavoritos().has(id);
   }
 
-  favoritos(): Item[] {
-    const ids = this.idsFavoritos();
-    return this.items.filter((item) => ids.has(item.id));
-  }
-
-  private idsFavoritos(): Set<string> {
-    const bruto = localStorage.getItem('amb.favoritos');
-    return new Set<string>(bruto ? (JSON.parse(bruto) as string[]) : []);
-  }
-
   mensagensDe(itemId: string): ChatMessage[] {
     return this.chats[itemId] ?? [];
   }
+}
+
+function lerIdsFavoritos(): ReadonlySet<string> {
+  const bruto = localStorage.getItem('amb.favoritos');
+  if (!bruto) {
+    return new Set();
+  }
+  const ids = JSON.parse(bruto) as unknown;
+  if (!Array.isArray(ids)) {
+    return new Set();
+  }
+  return new Set(ids.filter((id): id is string => typeof id === 'string'));
 }

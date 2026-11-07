@@ -20,17 +20,30 @@
     ></ion-searchbar>
 
     <div class="chips" role="list">
-      @for (filter of filters; track filter.key) {
-        <button
-          type="button"
-          class="chip-btn"
-          [class.on]="activeFilter() === filter.key"
-          (click)="setFilter(filter.key)"
-        >
-          {{ rotuloFiltro(filter) }}
-          <ion-icon name="chevron-down"></ion-icon>
-        </button>
-      }
+      <ion-select
+        class="chip-select"
+        [class.on]="!!category()"
+        interface="popover"
+        placeholder="Categoria"
+        toggleIcon="chevron-down"
+        aria-label="Categoria"
+        [value]="category()"
+        (ionChange)="definirCategoria($event)"
+      >
+        <ion-select-option value="">Todas</ion-select-option>
+        @for (categoria of categorias; track categoria) {
+          <ion-select-option [value]="categoria">{{ categoria }}</ion-select-option>
+        }
+      </ion-select>
+
+      <button
+        type="button"
+        class="chip-btn"
+        [class.on]="disponibilidadeAtiva()"
+        (click)="alternarDisponibilidade()"
+      >
+        Disponibilidade
+      </button>
     </div>
 
     @switch (estado()) {
