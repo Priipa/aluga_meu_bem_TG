@@ -13,7 +13,8 @@ rules_version = '2';
 //   - telefone: string no formato da máscara do cadastro
 //   - termos: map { versao, aceitoEm }
 //   - locador: map { habilitado, habilitadoEm, versaoTermos, termosAceitosEm }
-// Update do dono: ativação de locador ou edição de nome, telefone e atualizadoEm.
+// Update do dono: ativação de locador ou edição de nome, telefone, fotoPerfil e atualizadoEm.
+// fotoPerfil é opcional e guarda só o caminho no Storage. Contas antigas não têm o campo.
 // A ativação não pode alterar os dados pessoais, e a edição pessoal não pode
 // alterar locador, termos, e-mail, CPF, criadoEm nem cidade.
 //   - criadoEm / atualizadoEm: timestamp (serverTimestamp)
@@ -113,10 +114,20 @@ service cloud.firestore {
 
       function edicaoDadosPessoaisValida() {
         let depois = request.resource.data;
-        return depois.diff(resource.data).affectedKeys().hasOnly(['nome', 'telefone', 'atualizadoEm'])
+        return depois.diff(resource.data).affectedKeys().hasOnly(['nome', 'telefone', 'fotoPerfil', 'atualizadoEm'])
           && timestampDoServidor(depois.atualizadoEm)
           && texto(depois.nome, 2, 80)
-          && telefoneMascarado(depois.telefone);
+          && telefoneMascarado(depois.telefone)
+          && fotoPerfilAceita(depois);
+      }
+
+      function fotoPerfilAceita(dados) {
+        return !dados.keys().hasAny(['fotoPerfil'])
+          || dados.fotoPerfil == null
+          || (
+            dados.fotoPerfil is string
+            && dados.fotoPerfil.matches('^usuarios/' + usuarioId + '/perfil-[A-Za-z0-9]{8,32}\\.jpg$')
+          );
       }
 
       function ativacaoLocadorValida() {

@@ -57,6 +57,8 @@ export interface UserProfile {
   city?: string;
   cpf?: string;
   phone?: string;
+  /** Caminho no Storage, não a URL de download. Ausente quando não há foto. */
+  fotoPerfil?: string;
   locador: Locador;
 }
 
@@ -95,6 +97,8 @@ export interface Usuario {
   email: string;
   cpf: string;
   telefone: string;
+  /** Caminho opcional no Storage. Contas antigas não têm este campo. */
+  fotoPerfil?: string;
   termos: TermosUso;
   locador: Locador;
   criadoEm: Timestamp;

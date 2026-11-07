@@ -43,6 +43,14 @@ export function selecionarFotos<T extends ArquivoFoto>(
   return { aceitas, mensagem: [...mensagens].join(' ') };
 }
 
+/** Uma foto de perfil usa as mesmas regras de tipo e tamanho do anúncio. */
+export function selecionarFotoPerfil<T extends ArquivoFoto>(
+  arquivo: T,
+): { aceita: T | null; mensagem: string } {
+  const resultado = selecionarFotos(0, [arquivo]);
+  return { aceita: resultado.aceitas[0] ?? null, mensagem: resultado.mensagem };
+}
+
 export function validarConjuntoDeFotos(fotos: readonly ArquivoFoto[]): void {
   if (fotos.length < 1) {
     throw new Error('Adicione pelo menos uma foto.');

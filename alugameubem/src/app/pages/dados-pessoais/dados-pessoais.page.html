@@ -11,6 +11,33 @@
 
 <ion-content [fullscreen]="true">
   <form class="page-pad" [formGroup]="form" (ngSubmit)="salvar()">
+    <div class="foto">
+      <div class="marca-usuario" aria-hidden="true">
+        @if (preview()) {
+          <img [src]="preview()" alt="" (error)="previewFalhou($event)" />
+        } @else {
+          <ion-icon name="person-outline"></ion-icon>
+        }
+      </div>
+      <div class="foto-acoes">
+        <label class="acao-foto">
+          {{ temFoto() ? 'Trocar foto' : 'Adicionar foto de perfil' }}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            [disabled]="carregando()"
+            (change)="selecionarFoto($event)"
+          />
+        </label>
+        @if (temFoto()) {
+          <button type="button" class="acao-foto remover" [disabled]="carregando()" (click)="retirarFoto()">
+            Remover foto
+          </button>
+        }
+        <p>Opcional. JPEG, PNG ou WebP, até 5 MB.</p>
+      </div>
+    </div>
+
     <label class="lab" for="nome">Nome</label>
     <input
       id="nome"

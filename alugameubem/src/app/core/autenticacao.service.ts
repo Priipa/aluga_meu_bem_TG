@@ -23,6 +23,7 @@ import {
 } from 'firebase/firestore';
 import { autenticacaoFirebase, bancoFirestore } from './firebase';
 import { Locador, UserProfile, Vinculo } from './models';
+import { fotoPerfilDoUsuario } from './foto-perfil';
 import { formatarNomeTitulo } from './nome';
 import { VERSAO_TERMOS_GERAIS, VERSAO_TERMOS_LOCADOR } from './termos';
 
@@ -260,6 +261,22 @@ export class AutenticacaoService {
     }
   }
 
+  /** Atualiza só a referência local depois que o Storage e o Firestore concordam. */
+  definirFotoPerfil(caminho: string | null): void {
+    const perfil = this.dadosPerfil();
+    const uid = this.usuarioFirebase()?.uid;
+    if (!perfil || !uid) {
+      return;
+    }
+    if (caminho !== null && !fotoPerfilDoUsuario(caminho, uid)) {
+      return;
+    }
+    this.dadosPerfil.set({
+      ...perfil,
+      fotoPerfil: caminho ?? undefined,
+    });
+  }
+
   async sair(): Promise<void> {
     await signOut(autenticacaoFirebase);
     this.usuarioFirebase.set(null);
@@ -493,6 +510,7 @@ export class AutenticacaoService {
     const telefone = dados['telefone'];
     const cpf = dados['cpf'];
     const cidade = dados['cidade'];
+    const fotoPerfil = dados['fotoPerfil'];
 
     return {
       name: String(dados['nome'] ?? usuario.displayName ?? 'Você'),
@@ -500,6 +518,8 @@ export class AutenticacaoService {
       city: typeof cidade === 'string' && cidade.trim() ? cidade : undefined,
       cpf: cpf ? String(cpf) : undefined,
       phone: telefone ? String(telefone) : undefined,
+      fotoPerfil:
+        typeof fotoPerfil === 'string' && fotoPerfilDoUsuario(fotoPerfil, usuario.uid) ? fotoPerfil : undefined,
       locador: this.mapearLocador(dados['locador']),
     };
   }

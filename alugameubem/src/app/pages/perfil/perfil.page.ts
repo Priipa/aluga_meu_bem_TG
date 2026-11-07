@@ -1,9 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { IonButton, IonContent, IonHeader, IonIcon, IonModal, IonTitle, IonToolbar } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { chevronForwardOutline, personOutline } from 'ionicons/icons';
 import { AutenticacaoService } from '../../core/autenticacao.service';
+import { FotoPerfilService } from '../../core/foto-perfil.service';
 import { nomeExibicao } from '../../core/nome-exibicao';
 import { PARAGRAFOS_TERMOS_LOCADOR, VERSAO_TERMOS_LOCADOR } from '../../core/termos';
 
@@ -15,8 +16,12 @@ import { PARAGRAFOS_TERMOS_LOCADOR, VERSAO_TERMOS_LOCADOR } from '../../core/ter
 })
 export class PerfilPage {
   private readonly autenticacao = inject(AutenticacaoService);
+  private readonly fotos = inject(FotoPerfilService);
   private readonly router = inject(Router);
+  private objetoAvatar: string | null = null;
+  private geracaoAvatar = 0;
   readonly perfil = this.autenticacao.perfil;
+  readonly avatar = signal<string | null>(null);
   readonly nomeCurto = computed(() => nomeExibicao(this.perfil()?.name ?? '') || 'Visitante');
   readonly ehLocador = this.autenticacao.ehLocador;
   readonly erroSessao = this.autenticacao.erroSessao;
@@ -30,6 +35,23 @@ export class PerfilPage {
 
   constructor() {
     addIcons({ personOutline, chevronForwardOutline });
+    effect(() => {
+      const caminho = this.perfil()?.fotoPerfil ?? null;
+      const geracao = ++this.geracaoAvatar;
+      void this.mostrarAvatar(caminho, geracao);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.trocarAvatar(null);
+  }
+
+  avatarFalhou(evento: Event): void {
+    const imagem = evento.target;
+    if (!(imagem instanceof HTMLImageElement) || imagem.src !== this.avatar()) {
+      return;
+    }
+    this.trocarAvatar(null);
   }
 
   abrirAtivacao(): void {
@@ -85,6 +107,35 @@ export class PerfilPage {
     } finally {
       this.ativando.set(false);
     }
+  }
+
+  private async mostrarAvatar(caminho: string | null, geracao: number): Promise<void> {
+    if (!caminho) {
+      if (geracao === this.geracaoAvatar) {
+        this.trocarAvatar(null);
+      }
+      return;
+    }
+    try {
+      const url = await this.fotos.abrir(caminho);
+      if (geracao !== this.geracaoAvatar) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      this.trocarAvatar(url);
+    } catch {
+      if (geracao === this.geracaoAvatar) {
+        this.trocarAvatar(null);
+      }
+    }
+  }
+
+  private trocarAvatar(url: string | null): void {
+    if (this.objetoAvatar?.startsWith('blob:') && this.objetoAvatar !== url) {
+      URL.revokeObjectURL(this.objetoAvatar);
+    }
+    this.objetoAvatar = url;
+    this.avatar.set(url);
   }
 
   async logout(): Promise<void> {

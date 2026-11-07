@@ -4,6 +4,7 @@ import { guardAutenticado, guardLocador, guardSomenteVisitante } from './core/au
 export const routes: Routes = [
   {
     path: 'welcome',
+    canActivate: [guardSomenteVisitante],
     loadComponent: () =>
       import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
   },

@@ -8,7 +8,11 @@
   <div class="page-pad">
     <div class="hero-card">
       <div class="marca-usuario" aria-hidden="true">
-        <ion-icon name="person-outline"></ion-icon>
+        @if (avatar()) {
+          <img [src]="avatar()" alt="" (error)="avatarFalhou($event)" />
+        } @else {
+          <ion-icon name="person-outline"></ion-icon>
+        }
       </div>
       <div class="resumo">
         <h2>Olá, {{ nomeCurto() }}</h2>

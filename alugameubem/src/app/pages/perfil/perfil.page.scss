@@ -40,9 +40,16 @@
   place-items: center;
   width: 64px;
   height: 64px;
+  overflow: hidden;
   border-radius: 50%;
   background: #e9fad9;
   color: var(--amb-secondary);
+}
+
+.marca-usuario img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .marca-usuario ion-icon {

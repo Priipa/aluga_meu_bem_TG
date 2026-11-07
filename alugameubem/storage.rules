@@ -8,6 +8,14 @@ service firebase.storage {
       allow delete: if dono(uid);
     }
 
+    match /usuarios/{uid}/{arquivo} {
+      allow get: if dono(uid);
+      allow list: if false;
+      allow create: if dono(uid) && imagemJpeg() && arquivoPerfil(arquivo);
+      allow update: if false;
+      allow delete: if dono(uid) && arquivoPerfil(arquivo);
+    }
+
     function dono(uid) {
       return request.auth != null && request.auth.uid == uid;
     }
@@ -16,6 +24,17 @@ service firebase.storage {
       return request.resource != null
         && request.resource.size <= 5 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+
+    function imagemJpeg() {
+      return request.resource != null
+        && request.resource.size > 0
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+    }
+
+    function arquivoPerfil(arquivo) {
+      return arquivo.matches('perfil-[A-Za-z0-9]{8,32}\\.jpg');
     }
   }
 }
