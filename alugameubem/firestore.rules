@@ -260,7 +260,7 @@ service cloud.firestore {
           && d.valorDiaria > 0
           && textoPreenchido(d.titulo, 80)
           && textoPreenchido(d.descricao, 500)
-          && textoPreenchido(d.porQueAlugar, 500)
+          && textoOpcional(d.porQueAlugar, 500)
           && textoOpcional(d.acompanha, 500)
           && textoOpcional(d.condicoes, 500)
           && textoPreenchido(d.nomeExibicao, 40)

@@ -167,8 +167,10 @@
       <h2 class="section-title">Descrição</h2>
       <h3 class="sub">O que é?</h3>
       <p>{{ anuncio.descricao }}</p>
-      <h3 class="sub">Por que alugar?</h3>
-      <p>{{ anuncio.porQueAlugar }}</p>
+      @if (anuncio.porQueAlugar.trim()) {
+        <h3 class="sub">Por que alugar?</h3>
+        <p>{{ anuncio.porQueAlugar }}</p>
+      }
       @if (anuncio.acompanha.trim()) {
         <h3 class="sub">O que acompanha</h3>
         <p>{{ anuncio.acompanha }}</p>

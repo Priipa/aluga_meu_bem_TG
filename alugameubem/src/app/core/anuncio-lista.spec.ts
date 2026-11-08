@@ -1,5 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import { describe, expect, it } from 'vitest';
+import { MARCA_TEXTO_OPCIONAL_VAZIO } from './anuncio-documento';
 import { Anuncio } from './models';
 import { anuncioDaLeitura, filtrarAnunciosDaHome } from './anuncio-lista';
 
@@ -37,6 +38,10 @@ describe('anuncioDaLeitura', () => {
     expect(anuncioDaLeitura('doc-1', documento({ titulo: 10 }))).toBeNull();
     expect(anuncioDaLeitura('doc-1', documento({ imagens: [''] }))).toBeNull();
     expect(anuncioDaLeitura('', documento())).toBeNull();
+  });
+
+  it('trata porQueAlugar vazio gravado de forma compatível', () => {
+    expect(anuncioDaLeitura('doc-1', documento({ porQueAlugar: MARCA_TEXTO_OPCIONAL_VAZIO }))?.porQueAlugar).toBe('');
   });
 });
 

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -61,10 +62,11 @@ export class AnunciarPage implements OnDestroy {
     categoria: ['Casa', [Validators.required, categoriaDaLista]],
     valorDiaria: [30, valorDiariaValido],
     descricao: ['', textoLimite(LIMITE_TEXTO, true)],
-    porQueAlugar: ['', textoLimite(LIMITE_TEXTO, true)],
+    porQueAlugar: ['', textoLimite(LIMITE_TEXTO, false)],
     acompanha: ['', textoLimite(LIMITE_TEXTO, false)],
     condicoes: ['', textoLimite(LIMITE_TEXTO, false)],
   });
+  private readonly estadoDoForm = toSignal(this.form.events, { initialValue: null });
 
   constructor() {
     addIcons({ chevronBack, close });
@@ -105,6 +107,15 @@ export class AnunciarPage implements OnDestroy {
         preview: URL.createObjectURL(arquivo),
       })),
     ]);
+  }
+
+  pendente(nome: 'titulo' | 'categoria' | 'valorDiaria' | 'descricao' | 'porQueAlugar' | 'acompanha' | 'condicoes'): boolean {
+    this.estadoDoForm();
+    return this.form.controls[nome].invalid;
+  }
+
+  fotosPendentes(): boolean {
+    return this.fotos().length === 0;
   }
 
   removerFoto(preview: string): void {
@@ -158,9 +169,9 @@ export class AnunciarPage implements OnDestroy {
         descricao: valor.descricao,
         categoria: valor.categoria,
         valorDiaria: Number(valor.valorDiaria),
-        porQueAlugar: valor.porQueAlugar,
-        acompanha: valor.acompanha,
-        condicoes: valor.condicoes,
+        porQueAlugar: textoCampoFormulario(valor.porQueAlugar),
+        acompanha: textoCampoFormulario(valor.acompanha),
+        condicoes: textoCampoFormulario(valor.condicoes),
       }, fotos.map((foto) => foto.arquivo));
       this.limparFotos();
       this.form.reset({
@@ -181,9 +192,13 @@ export class AnunciarPage implements OnDestroy {
   }
 }
 
+function textoCampoFormulario(valor: unknown): string {
+  return typeof valor === 'string' ? valor : '';
+}
+
 function textoLimite(maximo: number, obrigatorio: boolean) {
   return (controle: AbstractControl): ValidationErrors | null => {
-    const texto = String(controle.value ?? '').trim();
+    const texto = textoCampoFormulario(controle.value).trim();
     if (!texto) {
       return obrigatorio ? { required: true } : null;
     }

@@ -19,7 +19,7 @@
     } @else {
       <p>Anuncie o que está parado em casa e ganhe uma renda extra.</p>
       <form [formGroup]="form" (ngSubmit)="publicar()">
-        <div class="photo" [class.enviando]="carregando()">
+        <div class="photo" [class.enviando]="carregando()" [class.pendente]="fotosPendentes()">
           @if (fotos().length) {
             <div class="previews">
               @for (foto of fotos(); track foto.preview) {
@@ -47,29 +47,29 @@
           }
         </div>
         <ion-list lines="none">
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('titulo')">
             <ion-input label="Título" labelPlacement="stacked" formControlName="titulo"></ion-input>
           </ion-item>
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('categoria')">
             <ion-select label="Categoria" labelPlacement="stacked" formControlName="categoria" interface="popover">
               @for (categoria of categorias; track categoria) {
                 <ion-select-option [value]="categoria">{{ categoria }}</ion-select-option>
               }
             </ion-select>
           </ion-item>
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('valorDiaria')">
             <ion-input label="Valor por dia (R$)" labelPlacement="stacked" type="number" formControlName="valorDiaria"></ion-input>
           </ion-item>
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('descricao')">
             <ion-textarea label="Descrição" labelPlacement="stacked" rows="4" formControlName="descricao"></ion-textarea>
           </ion-item>
-          <ion-item class="field">
-            <ion-textarea label="Por que alugar?" labelPlacement="stacked" rows="3" formControlName="porQueAlugar"></ion-textarea>
+          <ion-item class="field" [class.pendente]="pendente('porQueAlugar')">
+            <ion-textarea label="Por que alugar? (opcional)" labelPlacement="stacked" rows="3" formControlName="porQueAlugar"></ion-textarea>
           </ion-item>
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('acompanha')">
             <ion-textarea label="O que acompanha?" labelPlacement="stacked" rows="3" formControlName="acompanha"></ion-textarea>
           </ion-item>
-          <ion-item class="field">
+          <ion-item class="field" [class.pendente]="pendente('condicoes')">
             <ion-textarea label="Condições de aluguel" labelPlacement="stacked" rows="4" formControlName="condicoes"></ion-textarea>
           </ion-item>
         </ion-list>

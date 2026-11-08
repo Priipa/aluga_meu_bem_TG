@@ -6,6 +6,8 @@ import { nomeExibicao } from './nome-exibicao';
 export const LIMITE_TITULO = 80;
 export const LIMITE_TEXTO = 500;
 export const LIMITE_NOME_EXIBICAO = 40;
+/** As regras publicadas ainda exigem um caractere visível em `porQueAlugar`. */
+export const MARCA_TEXTO_OPCIONAL_VAZIO = '\u200b';
 
 export interface DadosFormularioAnuncio {
   titulo: string;
@@ -60,7 +62,7 @@ export function prepararAnuncio(sessao: SessaoParaAnuncio, dados: DadosFormulari
   const vinculo = vinculoPublicavel(sessao);
   const titulo = textoObrigatorio(dados.titulo, LIMITE_TITULO, 'Informe o título do item.');
   const descricao = textoObrigatorio(dados.descricao, LIMITE_TEXTO, 'Informe a descrição do item.');
-  const porQueAlugar = textoObrigatorio(dados.porQueAlugar, LIMITE_TEXTO, 'Informe por que vale alugar este item.');
+  const porQueAlugar = textoOpcional(dados.porQueAlugar, LIMITE_TEXTO) || MARCA_TEXTO_OPCIONAL_VAZIO;
   const categoria = dados.categoria.trim();
   if (!categoriaValida(categoria)) {
     throw new Error('Escolha uma categoria da lista.');
@@ -114,7 +116,7 @@ function vinculoPublicavel(sessao: SessaoParaAnuncio): VinculoParaAnuncio {
 }
 
 function textoObrigatorio(valor: string, maximo: number, mensagem: string): string {
-  const texto = valor.trim();
+  const texto = textoCampo(valor);
   if (!texto || texto.length > maximo) {
     throw new Error(mensagem);
   }
@@ -122,9 +124,17 @@ function textoObrigatorio(valor: string, maximo: number, mensagem: string): stri
 }
 
 function textoOpcional(valor: string, maximo: number): string {
-  const texto = valor.trim();
+  const texto = textoCampo(valor);
   if (texto.length > maximo) {
     throw new Error('Um dos textos passou do tamanho permitido.');
   }
   return texto;
+}
+
+function textoCampo(valor: unknown): string {
+  return typeof valor === 'string' ? valor.trim() : '';
+}
+
+export function textoOpcionalExibido(valor: string): string {
+  return valor.split(MARCA_TEXTO_OPCIONAL_VAZIO).join('').trim();
 }

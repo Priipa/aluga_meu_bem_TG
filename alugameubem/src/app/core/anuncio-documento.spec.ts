@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { prepararAnuncio, SessaoParaAnuncio } from './anuncio-documento';
+import { MARCA_TEXTO_OPCIONAL_VAZIO, prepararAnuncio, SessaoParaAnuncio } from './anuncio-documento';
 
 const dados = {
   titulo: '  Furadeira  ',
@@ -54,6 +54,15 @@ describe('prepararAnuncio', () => {
     expect(() => prepararAnuncio(sessao({ situacaoVinculo: 'ausente', vinculo: null }), dados)).toThrow(/condomínio/);
     expect(() => prepararAnuncio(sessao({ situacaoVinculo: 'inconsistente', vinculo: null }), dados)).toThrow(/mais de um/);
     expect(() => prepararAnuncio(sessao({ situacaoVinculo: 'erro', vinculo: null }), dados)).toThrow(/confirmar seu condomínio/);
+  });
+
+  it('aceita porQueAlugar vazio ou ausente', () => {
+    expect(prepararAnuncio(sessao(), { ...dados, porQueAlugar: '   ' }).porQueAlugar).toBe(
+      MARCA_TEXTO_OPCIONAL_VAZIO,
+    );
+    expect(
+      prepararAnuncio(sessao(), { ...dados, porQueAlugar: undefined as unknown as string }).porQueAlugar,
+    ).toBe(MARCA_TEXTO_OPCIONAL_VAZIO);
   });
 
   it('não aceita categoria fora da lista nem valor inválido', () => {

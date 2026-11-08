@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { textoOpcionalExibido } from './anuncio-documento';
 import { Anuncio, StatusAnuncio } from './models';
 
 const STATUS_ANUNCIO: readonly StatusAnuncio[] = ['ativo', 'pausado', 'arquivado'];
@@ -58,7 +59,7 @@ export function anuncioDaLeitura(id: string, dados: Record<string, unknown>): An
     descricao,
     categoria,
     valorDiaria,
-    porQueAlugar,
+    porQueAlugar: textoOpcionalExibido(porQueAlugar),
     acompanha,
     condicoes,
     imagens,

@@ -44,6 +44,20 @@ ion-list {
       pointer-events: none;
     }
   }
+
+  &.pendente {
+    border-color: var(--amb-danger);
+    color: var(--amb-danger);
+    background: #fdecea;
+  }
+}
+
+.field.pendente {
+  border-color: var(--amb-danger);
+  color: var(--amb-danger);
+  --color: var(--amb-danger);
+  --highlight-color-focused: var(--amb-danger);
+  --highlight-color-invalid: var(--amb-danger);
 }
 
 .previews {
