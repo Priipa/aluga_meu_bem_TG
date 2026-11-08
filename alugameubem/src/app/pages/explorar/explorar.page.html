@@ -11,14 +11,6 @@
 
 <ion-content [fullscreen]="true">
   <div class="page-pad">
-    <ion-searchbar
-      class="search-field"
-      placeholder="Procure por qualquer coisa..."
-      animated="true"
-      [debounce]="150"
-      (ionInput)="query.set($event.detail.value ?? '')"
-    ></ion-searchbar>
-
     <div class="chips" role="list">
       <ion-select
         class="chip-select"
@@ -36,14 +28,25 @@
         }
       </ion-select>
 
-      <button
-        type="button"
-        class="chip-btn"
-        [class.on]="disponibilidadeAtiva()"
-        (click)="alternarDisponibilidade()"
-      >
-        Disponibilidade
-      </button>
+      <ion-input
+        class="chip-input"
+        type="number"
+        inputmode="decimal"
+        min="0"
+        placeholder="Mín. R$"
+        aria-label="Valor mínimo por dia"
+        (ionInput)="definirValorMin($event)"
+      ></ion-input>
+
+      <ion-input
+        class="chip-input"
+        type="number"
+        inputmode="decimal"
+        min="0"
+        placeholder="Máx. R$"
+        aria-label="Valor máximo por dia"
+        (ionInput)="definirValorMax($event)"
+      ></ion-input>
     </div>
 
     @switch (estado()) {

@@ -42,29 +42,31 @@ describe('anuncioDaLeitura', () => {
 
 describe('filtrarAnunciosDaHome', () => {
   const anuncios = [
-    anuncio('1', 'Furadeira', 'Ferramenta para parede', 'Ferramentas'),
-    anuncio('2', 'Bicicleta', 'Passeio no fim de semana', 'Esporte'),
-    anuncio('3', 'Projetor', 'Cinema em casa', 'Eletrônicos'),
+    anuncio('1', 'Furadeira', 'Ferramentas', 25),
+    anuncio('2', 'Bicicleta', 'Esporte', 40),
+    anuncio('3', 'Projetor', 'Eletrônicos', 80),
   ];
 
-  it('filtra título e descrição sem diferenciar maiúsculas', () => {
-    expect(filtrarAnunciosDaHome(anuncios, '  FURADEIRA ', null).map((item) => item.id)).toEqual(['1']);
-    expect(filtrarAnunciosDaHome(anuncios, 'cinema', null).map((item) => item.id)).toEqual(['3']);
+  it('filtra pela categoria oficial', () => {
+    expect(filtrarAnunciosDaHome(anuncios, 'Esporte', null, null).map((item) => item.id)).toEqual(['2']);
+    expect(filtrarAnunciosDaHome(anuncios, 'Eletrônicos', null, null).map((item) => item.id)).toEqual(['3']);
   });
 
-  it('filtra pela categoria oficial e combina com a busca', () => {
-    expect(filtrarAnunciosDaHome(anuncios, '', 'Esporte').map((item) => item.id)).toEqual(['2']);
-    expect(filtrarAnunciosDaHome(anuncios, 'casa', 'Eletrônicos').map((item) => item.id)).toEqual(['3']);
-    expect(filtrarAnunciosDaHome(anuncios, 'furadeira', 'Esporte')).toEqual([]);
+  it('filtra pela faixa de valor e combina com a categoria', () => {
+    expect(filtrarAnunciosDaHome(anuncios, null, 40, null).map((item) => item.id)).toEqual(['2', '3']);
+    expect(filtrarAnunciosDaHome(anuncios, null, null, 40).map((item) => item.id)).toEqual(['1', '2']);
+    expect(filtrarAnunciosDaHome(anuncios, null, 30, 80).map((item) => item.id)).toEqual(['2', '3']);
+    expect(filtrarAnunciosDaHome(anuncios, 'Ferramentas', 20, 30).map((item) => item.id)).toEqual(['1']);
+    expect(filtrarAnunciosDaHome(anuncios, 'Esporte', 50, null)).toEqual([]);
   });
 
-  it('devolve a lista inteira quando não há termo nem categoria', () => {
-    expect(filtrarAnunciosDaHome(anuncios, '   ', null)).toHaveLength(3);
+  it('devolve a lista inteira quando não há categoria nem faixa de valor', () => {
+    expect(filtrarAnunciosDaHome(anuncios, null, null, null)).toHaveLength(3);
   });
 });
 
-function anuncio(id: string, titulo: string, descricao: string, categoria: string): Anuncio {
-  const lido = anuncioDaLeitura(id, documento({ titulo, descricao, categoria }));
+function anuncio(id: string, titulo: string, categoria: string, valorDiaria: number): Anuncio {
+  const lido = anuncioDaLeitura(id, documento({ titulo, categoria, valorDiaria }));
   if (!lido) {
     throw new Error('documento de teste inválido');
   }

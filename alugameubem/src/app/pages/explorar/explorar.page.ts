@@ -6,7 +6,7 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonSearchbar,
+  IonInput,
   IonSelect,
   IonSelectOption,
   IonTitle,
@@ -43,7 +43,7 @@ type EstadoHome =
     IonTitle,
     IonContent,
     IonIcon,
-    IonSearchbar,
+    IonInput,
     IonSelect,
     IonSelectOption,
     RouterLink,
@@ -56,9 +56,9 @@ export class ExplorarPage {
   private readonly catalogo = inject(CatalogoService);
   private geracaoLista = 0;
 
-  readonly query = signal('');
   readonly category = signal<string | null>(null);
-  readonly disponibilidadeAtiva = signal(false);
+  readonly valorMin = signal<number | null>(null);
+  readonly valorMax = signal<number | null>(null);
   readonly categorias = CATEGORIAS;
   readonly favTick = signal(0);
   private readonly anuncios = signal<Anuncio[]>([]);
@@ -68,7 +68,7 @@ export class ExplorarPage {
   private readonly capasComFalha = signal<ReadonlySet<string>>(new Set());
 
   readonly itens = computed(() =>
-    filtrarAnunciosDaHome(this.anuncios(), this.query(), this.category()),
+    filtrarAnunciosDaHome(this.anuncios(), this.category(), this.valorMin(), this.valorMax()),
   );
 
   readonly estado = computed((): EstadoHome => {
@@ -128,8 +128,12 @@ export class ExplorarPage {
     this.category.set(categoriaValida(valor) ? valor : null);
   }
 
-  alternarDisponibilidade(): void {
-    this.disponibilidadeAtiva.update((ativa) => !ativa);
+  definirValorMin(evento: CustomEvent): void {
+    this.valorMin.set(numeroFiltro(evento.detail.value));
+  }
+
+  definirValorMax(evento: CustomEvent): void {
+    this.valorMax.set(numeroFiltro(evento.detail.value));
   }
 
   capaVisivel(anuncio: Anuncio): boolean {
@@ -186,4 +190,13 @@ export class ExplorarPage {
       }
     }
   }
+}
+
+function numeroFiltro(valor: unknown): number | null {
+  const texto = String(valor ?? '').trim();
+  if (!texto) {
+    return null;
+  }
+  const numero = Number(texto);
+  return Number.isFinite(numero) && numero >= 0 ? numero : null;
 }

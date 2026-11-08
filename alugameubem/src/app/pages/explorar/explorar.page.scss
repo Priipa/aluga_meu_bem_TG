@@ -20,27 +20,6 @@
   display: none;
 }
 
-.chip-btn {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 10px;
-  border: 1px solid var(--amb-border);
-  background: #fff;
-  color: var(--amb-ink);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.chip-btn.on {
-  background: var(--amb-secondary);
-  border-color: var(--amb-secondary);
-  color: #fff;
-}
-
 .chip-select {
   flex: 0 0 auto;
   width: auto;
@@ -77,6 +56,24 @@
 .chip-select.on::part(placeholder),
 .chip-select.on::part(icon) {
   color: #fff;
+}
+
+.chip-input {
+  flex: 0 0 108px;
+  min-height: 36px;
+  --min-height: 36px;
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --placeholder-color: var(--amb-ink);
+  --placeholder-opacity: 1;
+  --color: var(--amb-ink);
+  --background: #fff;
+  --highlight-color-focused: var(--amb-secondary);
+  border-radius: 10px;
+  border: 1px solid var(--amb-border);
+  background: #fff;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 .grid {

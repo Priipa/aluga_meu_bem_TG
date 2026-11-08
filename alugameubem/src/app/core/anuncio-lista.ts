@@ -73,24 +73,24 @@ export function anuncioDaLeitura(id: string, dados: Record<string, unknown>): An
   };
 }
 
-/** Busca e categoria acontecem depois da consulta do condomínio, só no cliente. */
+/** Categoria e faixa de valor acontecem depois da consulta do condomínio, só no cliente. */
 export function filtrarAnunciosDaHome(
   anuncios: readonly Anuncio[],
-  termo: string,
   categoria: string | null,
+  valorMin: number | null,
+  valorMax: number | null,
 ): Anuncio[] {
-  const busca = termo.trim().toLocaleLowerCase('pt-BR');
   return anuncios.filter((anuncio) => {
     if (categoria && anuncio.categoria !== categoria) {
       return false;
     }
-    if (!busca) {
-      return true;
+    if (valorMin !== null && anuncio.valorDiaria < valorMin) {
+      return false;
     }
-    return (
-      anuncio.titulo.toLocaleLowerCase('pt-BR').includes(busca) ||
-      anuncio.descricao.toLocaleLowerCase('pt-BR').includes(busca)
-    );
+    if (valorMax !== null && anuncio.valorDiaria > valorMax) {
+      return false;
+    }
+    return true;
   });
 }
 
