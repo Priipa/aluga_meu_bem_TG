@@ -1,0 +1,116 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Meus anúncios</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/tabs/anunciar" aria-label="Publicar item">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <section class="resumo" aria-label="Resumo">
+      <article>
+        <span>Anúncios ativos</span>
+        <strong>{{ ativos().length }}</strong>
+        <small>{{ ativos().length === 1 ? 'item' : 'itens' }}</small>
+      </article>
+    </section>
+
+    <div class="abas" role="tablist">
+      <button type="button" role="tab" [class.on]="aba() === 'ativo'" (click)="escolherAba('ativo')">
+        Ativos <span>{{ ativos().length }}</span>
+      </button>
+      <button type="button" role="tab" [class.on]="aba() === 'pausado'" (click)="escolherAba('pausado')">
+        Pausados <span>{{ pausados().length }}</span>
+      </button>
+      <button type="button" role="tab" [class.on]="aba() === 'arquivado'" (click)="escolherAba('arquivado')">
+        Excluídos <span>{{ excluidos().length }}</span>
+      </button>
+    </div>
+
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+
+    @switch (estado()) {
+      @case ('sessao') {
+        <p class="estado">Carregando...</p>
+      }
+      @case ('carregando') {
+        <p class="estado">Carregando seus anúncios...</p>
+      }
+      @case ('erro') {
+        <p class="estado">Não foi possível carregar seus anúncios.</p>
+      }
+      @case ('lista') {
+        @if (visiveis().length === 0) {
+          <p class="estado">{{
+            aba() === 'ativo'
+              ? 'Você ainda não tem anúncios ativos.'
+              : aba() === 'pausado'
+                ? 'Nenhum anúncio pausado.'
+                : 'Nenhum anúncio excluído.'
+          }}</p>
+        } @else {
+          <div class="lista">
+            @for (item of visiveis(); track item.id) {
+              <article class="card">
+                <a class="corpo" [routerLink]="['/item', item.id]">
+                  <div class="photo">
+                    @if (capaVisivel(item)) {
+                      <img [src]="item.imagens[0]" [alt]="item.titulo" (error)="registrarFalhaDaCapa(item.id)" />
+                    } @else {
+                      <div class="photo-fallback" role="img" [attr.aria-label]="item.titulo"></div>
+                    }
+                    <span class="selo" [class.pausado]="item.status === 'pausado'" [class.excluido]="item.status === 'arquivado'">
+                      {{ rotuloStatus(item.status) }}
+                    </span>
+                  </div>
+                  <div class="info">
+                    <h3>{{ item.titulo }}</h3>
+                    <strong>{{ item.valorDiaria | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
+                    @if (item.status === 'pausado') {
+                      <p>Oculto nas buscas</p>
+                    }
+                    @if (item.status === 'arquivado') {
+                      <p>Fora da plataforma</p>
+                    }
+                  </div>
+                </a>
+                <div class="acoes">
+                  @if (item.status === 'ativo') {
+                    <button type="button" [disabled]="alterandoId() === item.id" (click)="pausar(item, $event)">
+                      <ion-icon name="pause-outline"></ion-icon>
+                      Pausar
+                    </button>
+                  }
+                  @if (item.status !== 'ativo') {
+                    <button type="button" class="ativar" [disabled]="alterandoId() === item.id" (click)="ativar(item, $event)">
+                      <ion-icon name="play-outline"></ion-icon>
+                      Ativar anúncio
+                    </button>
+                  }
+                  @if (item.status !== 'arquivado') {
+                    <button type="button" class="excluir" [disabled]="alterandoId() === item.id" (click)="excluir(item, $event)">
+                      <ion-icon name="trash-outline"></ion-icon>
+                      Excluir
+                    </button>
+                  }
+                  <a [routerLink]="['/item', item.id]">Detalhes</a>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+
+    <div class="cta">
+      <p>Tem algo parado em casa?</p>
+      <ion-button class="btn-pill btn-lime" routerLink="/tabs/anunciar">Anunciar</ion-button>
+    </div>
+  </div>
+</ion-content>

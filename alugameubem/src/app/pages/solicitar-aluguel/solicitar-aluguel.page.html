@@ -1,0 +1,81 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button text="" [defaultHref]="id() ? '/item/' + id() : '/tabs/home'"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Solicitar aluguel</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    @if (estado() === 'carregando') {
+      <p class="estado">Carregando...</p>
+    } @else if (estado() === 'erro') {
+      <p class="estado">{{ aviso() }}</p>
+    } @else if (anuncio(); as anuncio) {
+      <div class="resumo">
+        @if (anuncio.imagens[0]; as capa) {
+          <img [src]="capa" [alt]="anuncio.titulo" />
+        }
+        <div>
+          <h2>{{ anuncio.titulo }}</h2>
+          <p>{{ anuncio.valorDiaria | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</p>
+        </div>
+      </div>
+
+      <ion-list lines="none">
+        <ion-item class="field">
+          <ion-input
+            label="Início"
+            labelPlacement="stacked"
+            type="date"
+            [min]="hoje"
+            [value]="inicioIso()"
+            (ionInput)="atualizarInicio($event.detail.value)"
+            (ionChange)="atualizarInicio($event.detail.value)"
+          ></ion-input>
+        </ion-item>
+        <ion-item class="field">
+          <ion-input
+            label="Devolução"
+            labelPlacement="stacked"
+            type="date"
+            [min]="inicioIso()"
+            [value]="fimIso()"
+            (ionInput)="atualizarFim($event.detail.value)"
+            (ionChange)="atualizarFim($event.detail.value)"
+          ></ion-input>
+        </ion-item>
+        <ion-item class="field">
+          <ion-textarea
+            label="Mensagem para o locador"
+            labelPlacement="stacked"
+            rows="4"
+            [ngModel]="mensagem()"
+            (ngModelChange)="mensagem.set($event)"
+            maxlength="500"
+            placeholder="Diga para que precisa do item e quando pode retirar."
+          ></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      <p class="total">
+        @if (dias() > 0) {
+          {{ dias() }} {{ dias() === 1 ? 'dia' : 'dias' }} ·
+          <strong>{{ total() | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</strong>
+        } @else {
+          Informe um período de pelo menos um dia.
+        }
+      </p>
+
+      @if (aviso()) {
+        <p class="erro">{{ aviso() }}</p>
+      }
+
+      <ion-button expand="block" class="btn-pill btn-lime" [disabled]="enviando() || dias() < 1" (click)="enviar()">
+        {{ enviando() ? 'Enviando...' : 'Enviar solicitação' }}
+      </ion-button>
+    }
+  </div>
+</ion-content>

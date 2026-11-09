@@ -27,6 +27,15 @@
   font-weight: 700;
 }
 
+.owner ion-button {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.owner strong {
+  display: block;
+}
+
 .overlay {
   position: absolute;
   inset: 0 auto auto 0;

@@ -1,12 +1,23 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { StorageReference, deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import {
   DadosFormularioAnuncio,
   prepararAnuncio,
 } from './anuncio-documento';
-import { anuncioDaLeitura } from './anuncio-lista';
-import { Anuncio } from './models';
+import { anuncioDaLeitura, disponivelDoStatus } from './anuncio-lista';
+import { Anuncio, StatusAnuncio } from './models';
 import { TIPO_FOTO_PUBLICADA, caminhoFotoAnuncio, nomeFotoPublicada, validarConjuntoDeFotos } from './anuncio-fotos';
 import { otimizarFoto } from './otimizar-foto';
 import { AutenticacaoService } from './autenticacao.service';
@@ -50,6 +61,38 @@ export class AnuncioService {
       }
     }
     return anuncios;
+  }
+
+  async listarDoLocador(): Promise<Anuncio[]> {
+    const uid = this.autenticacao.uid();
+    if (!uid) {
+      return [];
+    }
+    const consulta = query(
+      collection(bancoFirestore, COLECAO_ANUNCIOS),
+      where('proprietarioId', '==', uid),
+      orderBy('criadoEm', 'desc'),
+    );
+    const snapshot = await getDocs(consulta);
+    const anuncios: Anuncio[] = [];
+    for (const documento of snapshot.docs) {
+      const anuncio = anuncioDaLeitura(documento.id, documento.data() as Record<string, unknown>);
+      if (anuncio) {
+        anuncios.push(anuncio);
+      }
+    }
+    return anuncios;
+  }
+
+  async alterarStatus(anuncioId: string, status: StatusAnuncio): Promise<void> {
+    if (!anuncioId) {
+      return;
+    }
+    await updateDoc(doc(bancoFirestore, COLECAO_ANUNCIOS, anuncioId), {
+      status,
+      disponivel: disponivelDoStatus(status),
+      atualizadoEm: serverTimestamp(),
+    });
   }
 
   /**

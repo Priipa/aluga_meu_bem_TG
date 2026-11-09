@@ -15,11 +15,26 @@
   color: inherit;
 }
 
-.row img {
+.row img,
+.avatar-letra {
   width: 52px;
   height: 52px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.avatar-letra {
+  display: grid;
+  place-items: center;
+  background: #e9fad9;
+  color: var(--amb-secondary);
+  font-weight: 800;
+}
+
+.item {
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--amb-ink);
 }
 
 .row h3 {

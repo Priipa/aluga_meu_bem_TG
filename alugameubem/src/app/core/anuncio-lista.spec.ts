@@ -2,7 +2,13 @@ import { Timestamp } from 'firebase/firestore';
 import { describe, expect, it } from 'vitest';
 import { MARCA_TEXTO_OPCIONAL_VAZIO } from './anuncio-documento';
 import { Anuncio } from './models';
-import { anuncioDaLeitura, filtrarAnunciosDaHome } from './anuncio-lista';
+import {
+  anuncioDaLeitura,
+  anunciosComStatus,
+  disponivelDoStatus,
+  filtrarAnunciosDaHome,
+  rotuloStatus,
+} from './anuncio-lista';
 
 function documento(parcial: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -67,6 +73,18 @@ describe('filtrarAnunciosDaHome', () => {
 
   it('devolve a lista inteira quando não há categoria nem faixa de valor', () => {
     expect(filtrarAnunciosDaHome(anuncios, null, null, null)).toHaveLength(3);
+  });
+});
+
+describe('status do anúncio do locador', () => {
+  it('separa as abas e alinha a disponibilidade', () => {
+    const ativos = [anuncio('1', 'Furadeira', 'Ferramentas', 25)];
+    const pausado = { ...ativos[0], id: '2', status: 'pausado' as const, disponivel: false };
+    const excluido = { ...ativos[0], id: '3', status: 'arquivado' as const, disponivel: false };
+    expect(anunciosComStatus([...ativos, pausado, excluido], 'pausado').map((item) => item.id)).toEqual(['2']);
+    expect(disponivelDoStatus('ativo')).toBe(true);
+    expect(disponivelDoStatus('arquivado')).toBe(false);
+    expect(rotuloStatus('arquivado')).toBe('Excluído');
   });
 });
 

@@ -1,28 +1,49 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button text="" defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button text="" defaultHref="/tabs/mensagens"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ item()?.owner?.name || 'Chat' }}</ion-title>
+    <ion-title>{{ titulo() }}</ion-title>
   </ion-toolbar>
+  @if (subtitulo()) {
+    <p class="subtitulo">{{ subtitulo() }}</p>
+  }
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="thread">
-    @for (msg of messages(); track $index) {
-      <div class="bubble" [class.mine]="msg.fromMe">
-        <p>{{ msg.text }}</p>
-        <span>{{ msg.time }}</span>
-      </div>
-    }
-  </div>
+  @if (estado() === 'carregando') {
+    <p class="estado">Carregando conversa...</p>
+  } @else if (estado() === 'erro') {
+    <p class="estado">{{ aviso() || 'Não foi possível abrir esta conversa.' }}</p>
+  } @else {
+    <div class="thread">
+      @for (msg of messages(); track $index) {
+        <div class="bubble" [class.mine]="msg.fromMe">
+          <p>{{ msg.text }}</p>
+          <span>{{ msg.time }}</span>
+        </div>
+      } @empty {
+        <p class="estado">Envie a primeira mensagem para tirar suas dúvidas.</p>
+      }
+    </div>
+  }
 </ion-content>
 
-<ion-footer class="ion-no-border">
-  <div class="composer">
-    <ion-input [(ngModel)]="draft" placeholder="Escreva uma mensagem" (keyup.enter)="sendMessage()"></ion-input>
-    <ion-button class="btn-pill btn-lime" (click)="sendMessage()">
-      <ion-icon slot="icon-only" name="send"></ion-icon>
-    </ion-button>
-  </div>
-</ion-footer>
+@if (estado() === 'ok') {
+  <ion-footer class="ion-no-border">
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+    <div class="composer">
+      <ion-input
+        [(ngModel)]="draft"
+        placeholder="Escreva uma mensagem"
+        [disabled]="enviando()"
+        (keyup.enter)="sendMessage()"
+      ></ion-input>
+      <ion-button class="btn-pill btn-lime" [disabled]="enviando()" (click)="sendMessage()">
+        <ion-icon slot="icon-only" name="send"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-footer>
+}

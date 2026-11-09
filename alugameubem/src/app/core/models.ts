@@ -193,6 +193,33 @@ export interface Anuncio {
   atualizadoEm: Timestamp;
 }
 
+/**
+ * Documento `conversas/{anuncioId}_{interessadoId}`.
+ * `id` é o id do documento e não é gravado como campo.
+ */
+export interface Conversa {
+  id: string;
+  anuncioId: string;
+  condominioId: string;
+  proprietarioId: string;
+  interessadoId: string;
+  participantes: string[];
+  tituloAnuncio: string;
+  nomeProprietario: string;
+  nomeInteressado: string;
+  ultimaMensagem: string;
+  criadoEm: Timestamp;
+  atualizadoEm: Timestamp;
+}
+
+/** `conversas/{id}/mensagens/{mensagemId}`. */
+export interface MensagemConversa {
+  id: string;
+  autorId: string;
+  texto: string;
+  criadoEm: Timestamp | null;
+}
+
 /** Rascunho antigo. A collection em uso é `anuncios`, não `produtos`. */
 export interface Produto {
   id: string;
@@ -208,22 +235,37 @@ export interface Produto {
   atualizadoEm: Timestamp;
 }
 
-export interface PeriodoLocacao {
-  inicio: Timestamp;
-  fim: Timestamp;
-}
+export type StatusLocacao =
+  | 'pendente'
+  | 'aprovado'
+  | 'em_andamento'
+  | 'concluido'
+  | 'recusado'
+  | 'cancelado';
 
-/** Collection `locacoes`. `status` será fechado na etapa de aluguéis. */
+/**
+ * Documento `locacoes/{id}`.
+ * `id` é o id do documento e não é gravado como campo.
+ */
 export interface Locacao {
   id: string;
-  produtoId: string;
+  anuncioId: string;
   condominioId: string;
   locadorId: string;
   locatarioId: string;
-  periodo: PeriodoLocacao;
+  participantes: string[];
+  tituloAnuncio: string;
+  categoriaAnuncio: string;
+  capaAnuncio: string;
+  nomeLocador: string;
+  nomeLocatario: string;
+  mensagem: string;
+  inicioIso: string;
+  fimIso: string;
+  dias: number;
   valorDiaria: number;
   valorTotal: number;
-  status: string;
+  status: StatusLocacao;
   criadoEm: Timestamp;
   atualizadoEm: Timestamp;
 }

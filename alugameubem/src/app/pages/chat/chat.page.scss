@@ -1,3 +1,23 @@
+.subtitulo {
+  margin: 0 16px 10px 56px;
+  font-size: 13px;
+  color: var(--amb-muted);
+}
+
+.estado {
+  margin: 16px 20px;
+  color: var(--amb-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.aviso {
+  margin: 0 16px 8px;
+  color: #b42318;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .thread {
   padding: 16px 16px 24px;
   display: flex;

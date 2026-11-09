@@ -53,7 +53,23 @@ rules_version = '2';
 // Imagens: 1 a 3 URLs de download, gravadas na criação.
 // List e get: anúncio ativo e disponível, conferindo o vínculo
 // vinculos/{uid}_{resource.data.condominioId}.
-// update e delete continuam fechados.
+// O dono também lê os próprios anúncios pausados ou arquivados.
+// Update do dono: só status, disponivel e atualizadoEm.
+//
+// Collection: conversas
+// Document ID: {anuncioId}_{interessadoId}
+// Fields: anuncioId, condominioId, proprietarioId, interessadoId,
+//   participantes, tituloAnuncio, nomeProprietario, nomeInteressado,
+//   ultimaMensagem, criadoEm, atualizadoEm.
+// Create: interessado ou locador, no mesmo condomínio do anúncio.
+// get/list: participantes. Update: última mensagem.
+// Subcollection mensagens/{id}: autorId, texto, criadoEm.
+//
+// Collection: locacoes
+// Document ID: gerado pelo cliente.
+// Create: locatário, anúncio ativo, mesmo condomínio.
+// get/list: locador ou locatário (participantes).
+// Update: locador responde pendente → aprovado ou recusado.
 //
 // ===============================================================
 
@@ -84,6 +100,25 @@ service cloud.firestore {
     // Impede o cliente de gravar um Timestamp escolhido à mão.
     function timestampDoServidor(valor) {
       return valor == request.time;
+    }
+
+    function textoPreenchido(valor, max) {
+      return valor is string
+        && valor.size() > 0
+        && valor.size() <= max
+        && valor.matches('.*\\S.*');
+    }
+
+    function textoOpcional(valor, max) {
+      return valor is string && valor.size() <= max;
+    }
+
+    function vinculoAtivoDoUsuario(usuarioId, condominioId) {
+      let caminho = /databases/$(database)/documents/vinculos/$(usuarioId + '_' + condominioId);
+      return exists(caminho)
+        && get(caminho).data.usuarioId == usuarioId
+        && get(caminho).data.condominioId == condominioId
+        && get(caminho).data.status == 'ativo';
     }
 
     function cpfMascarado(valor) {
@@ -225,7 +260,22 @@ service cloud.firestore {
     match /anuncios/{anuncioId} {
       allow create: if autenticado() && anuncioNovoValido();
 
-      allow get, list: if autenticado() && anuncioDoFeed();
+      allow get, list: if autenticado() && (anuncioDoFeed() || anuncioDoDono());
+
+      allow update: if autenticado() && anuncioDoDono() && atualizacaoStatusAnuncioValida();
+
+      function anuncioDoDono() {
+        return resource.data.proprietarioId == request.auth.uid;
+      }
+
+      function atualizacaoStatusAnuncioValida() {
+        let depois = request.resource.data;
+        return depois.diff(resource.data).affectedKeys().hasOnly(['status', 'disponivel', 'atualizadoEm'])
+          && timestampDoServidor(depois.atualizadoEm)
+          && depois.status in ['ativo', 'pausado', 'arquivado']
+          && depois.disponivel is bool
+          && depois.disponivel == (depois.status == 'ativo');
+      }
 
       function anuncioDoFeed() {
         let condominioId = resource.data.condominioId;
@@ -296,16 +346,157 @@ service cloud.firestore {
       function categoriaDeAnuncio(valor) {
         return valor in ['Casa', 'Eletrônicos', 'Esporte', 'Ferramentas'];
       }
+    }
 
-      function textoPreenchido(valor, max) {
-        return valor is string
-          && valor.size() > 0
-          && valor.size() <= max
-          && valor.matches('.*\\S.*');
+    match /conversas/{conversaId} {
+      allow get, list: if autenticado()
+        && request.auth.uid in resource.data.participantes;
+
+      allow create: if autenticado() && conversaNovaValida();
+
+      allow update: if autenticado()
+        && request.auth.uid in resource.data.participantes
+        && atualizacaoConversaValida();
+
+      match /mensagens/{mensagemId} {
+        allow get, list: if autenticado() && participanteDaConversa();
+        allow create: if autenticado() && mensagemNovaValida();
       }
 
-      function textoOpcional(valor, max) {
-        return valor is string && valor.size() <= max;
+      function conversaNovaValida() {
+        let d = request.resource.data;
+        let caminhoAnuncio = /databases/$(database)/documents/anuncios/$(d.anuncioId);
+        return mapaExato(d, [
+             'anuncioId', 'condominioId', 'proprietarioId', 'interessadoId',
+             'participantes', 'tituloAnuncio', 'nomeProprietario', 'nomeInteressado',
+             'ultimaMensagem', 'criadoEm', 'atualizadoEm'
+           ])
+          && conversaId == d.anuncioId + '_' + d.interessadoId
+          && request.auth.uid in [d.interessadoId, d.proprietarioId]
+          && d.proprietarioId != d.interessadoId
+          && d.participantes is list
+          && d.participantes.size() == 2
+          && d.participantes.hasAll([d.proprietarioId, d.interessadoId])
+          && exists(caminhoAnuncio)
+          && anuncioDaConversaConfere(d, get(caminhoAnuncio).data)
+          && vinculoAtivoDoUsuario(d.interessadoId, d.condominioId)
+          && vinculoAtivoDoUsuario(d.proprietarioId, d.condominioId)
+          && textoPreenchido(d.nomeInteressado, 40)
+          && textoPreenchido(d.ultimaMensagem, 500)
+          && timestampDoServidor(d.criadoEm)
+          && timestampDoServidor(d.atualizadoEm);
+      }
+
+      function anuncioDaConversaConfere(d, anuncio) {
+        return anuncio.status == 'ativo'
+          && anuncio.disponivel == true
+          && anuncio.proprietarioId == d.proprietarioId
+          && anuncio.condominioId == d.condominioId
+          && anuncio.titulo == d.tituloAnuncio
+          && anuncio.nomeExibicao == d.nomeProprietario;
+      }
+
+      function atualizacaoConversaValida() {
+        let depois = request.resource.data;
+        return depois.diff(resource.data).affectedKeys().hasOnly(['ultimaMensagem', 'atualizadoEm'])
+          && timestampDoServidor(depois.atualizadoEm)
+          && textoPreenchido(depois.ultimaMensagem, 500);
+      }
+
+      function participanteDaConversa() {
+        let caminho = /databases/$(database)/documents/conversas/$(conversaId);
+        return exists(caminho)
+          && request.auth.uid in get(caminho).data.participantes;
+      }
+
+      function mensagemNovaValida() {
+        let d = request.resource.data;
+        let caminho = /databases/$(database)/documents/conversas/$(conversaId);
+        return mapaExato(d, ['autorId', 'texto', 'criadoEm'])
+          && existsAfter(caminho)
+          && request.auth.uid in getAfter(caminho).data.participantes
+          && d.autorId == request.auth.uid
+          && textoPreenchido(d.texto, 500)
+          && timestampDoServidor(d.criadoEm);
+      }
+    }
+
+    match /locacoes/{locacaoId} {
+      allow get, list: if autenticado()
+        && request.auth.uid in resource.data.participantes;
+
+      allow create: if autenticado() && locacaoNovaValida();
+
+      allow update: if autenticado() && transicaoLocacaoValida();
+
+      function locacaoNovaValida() {
+        let d = request.resource.data;
+        let caminhoAnuncio = /databases/$(database)/documents/anuncios/$(d.anuncioId);
+        return mapaExato(d, [
+             'anuncioId', 'condominioId', 'locadorId', 'locatarioId', 'participantes',
+             'tituloAnuncio', 'categoriaAnuncio', 'capaAnuncio',
+             'nomeLocador', 'nomeLocatario', 'mensagem',
+             'inicioIso', 'fimIso', 'dias', 'valorDiaria', 'valorTotal',
+             'status', 'criadoEm', 'atualizadoEm'
+           ])
+          && d.locatarioId == request.auth.uid
+          && d.locadorId != d.locatarioId
+          && d.status == 'pendente'
+          && d.participantes is list
+          && d.participantes.size() == 2
+          && d.participantes.hasAll([d.locadorId, d.locatarioId])
+          && exists(caminhoAnuncio)
+          && anuncioDaLocacaoConfere(d, get(caminhoAnuncio).data)
+          && vinculoAtivoDoUsuario(d.locatarioId, d.condominioId)
+          && vinculoAtivoDoUsuario(d.locadorId, d.condominioId)
+          && textoPreenchido(d.nomeLocatario, 40)
+          && textoPreenchido(d.mensagem, 500)
+          && d.inicioIso.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && d.fimIso.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && d.dias is number
+          && d.dias >= 1
+          && d.dias <= 30
+          && d.valorDiaria is number
+          && d.valorDiaria > 0
+          && d.valorTotal == d.dias * d.valorDiaria
+          && d.capaAnuncio is string
+          && d.capaAnuncio.size() > 0
+          && d.capaAnuncio.size() <= 2048
+          && timestampDoServidor(d.criadoEm)
+          && timestampDoServidor(d.atualizadoEm);
+      }
+
+      function anuncioDaLocacaoConfere(d, anuncio) {
+        return anuncio.status == 'ativo'
+          && anuncio.disponivel == true
+          && anuncio.proprietarioId == d.locadorId
+          && anuncio.condominioId == d.condominioId
+          && anuncio.titulo == d.tituloAnuncio
+          && anuncio.categoria == d.categoriaAnuncio
+          && anuncio.nomeExibicao == d.nomeLocador
+          && anuncio.valorDiaria == d.valorDiaria
+          && anuncio.imagens[0] == d.capaAnuncio;
+      }
+
+      function transicaoLocacaoValida() {
+        let depois = request.resource.data;
+        let uid = request.auth.uid;
+        return depois.diff(resource.data).affectedKeys().hasOnly(['status', 'atualizadoEm'])
+          && timestampDoServidor(depois.atualizadoEm)
+          && (
+            (uid == resource.data.locadorId
+              && resource.data.status == 'pendente'
+              && depois.status in ['aprovado', 'recusado'])
+            || (uid == resource.data.locatarioId
+              && resource.data.status == 'pendente'
+              && depois.status == 'cancelado')
+            || (uid in resource.data.participantes
+              && resource.data.status == 'aprovado'
+              && depois.status == 'em_andamento')
+            || (uid in resource.data.participantes
+              && resource.data.status == 'em_andamento'
+              && depois.status == 'concluido')
+          );
       }
     }
   }

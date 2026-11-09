@@ -15,6 +15,8 @@ import { arrowBack, chevronBackOutline, chevronForwardOutline, heart, heartOutli
 import { AnuncioService } from '../../core/anuncio.service';
 import { AutenticacaoService } from '../../core/autenticacao.service';
 import { CatalogoService } from '../../core/catalogo.service';
+import { idConversa } from '../../core/conversa';
+import { LocacaoService } from '../../core/locacao.service';
 import { Anuncio } from '../../core/models';
 
 type EstadoReal =
@@ -50,6 +52,7 @@ export class DetalhesItemPage {
   private readonly catalogo = inject(CatalogoService);
   private readonly anuncios = inject(AnuncioService);
   private readonly autenticacao = inject(AutenticacaoService);
+  private readonly locacoes = inject(LocacaoService);
   private readonly router = inject(Router);
   private geracaoReal = 0;
   private ultimoId = '';
@@ -66,6 +69,7 @@ export class DetalhesItemPage {
   private readonly falha = signal<FalhaReal | null>(null);
   private readonly fotoComFalha = signal<number | null>(null);
   private readonly favTick = signal(0);
+  private readonly pedidoPendente = signal(false);
 
   readonly anuncioReal = this.anuncio.asReadonly();
 
@@ -126,6 +130,7 @@ export class DetalhesItemPage {
         this.ultimoId = id;
         this.imageIndex.set(0);
         this.fotoComFalha.set(null);
+        this.pedidoPendente.set(false);
       }
 
       if (mock || carregandoSessao || !autenticado || situacao !== 'unico' || !condominioId) {
@@ -148,6 +153,37 @@ export class DetalhesItemPage {
     if (item) {
       void this.router.navigate(['/pagamento', item.id]);
     }
+  }
+
+  ehDono(): boolean {
+    const anuncio = this.anuncio();
+    const uid = this.autenticacao.uid();
+    return !!anuncio && !!uid && uid === anuncio.proprietarioId;
+  }
+
+  itemDisponivel(): boolean {
+    const anuncio = this.anuncio();
+    return !!anuncio && anuncio.status === 'ativo' && anuncio.disponivel;
+  }
+
+  temPedidoPendente(): boolean {
+    return this.pedidoPendente();
+  }
+
+  podeSolicitar(): boolean {
+    return this.itemDisponivel() && !this.ehDono() && !this.pedidoPendente();
+  }
+
+  solicitarAluguel(): void {
+    const anuncio = this.anuncio();
+    if (!anuncio || this.ehDono()) {
+      return;
+    }
+    if (this.pedidoPendente()) {
+      void this.router.navigate(['/tabs/alugueis']);
+      return;
+    }
+    void this.router.navigate(['/solicitar', anuncio.id]);
   }
 
   setImage(i: number): void {
@@ -218,6 +254,21 @@ export class DetalhesItemPage {
     return anuncio ? this.catalogo.ehFavorito(anuncio.id) : false;
   }
 
+  podeContatar(): boolean {
+    const anuncio = this.anuncio();
+    const uid = this.autenticacao.uid();
+    return !!anuncio && !!uid && uid !== anuncio.proprietarioId;
+  }
+
+  contatar(): void {
+    const anuncio = this.anuncio();
+    const uid = this.autenticacao.uid();
+    if (!anuncio || !uid || uid === anuncio.proprietarioId) {
+      return;
+    }
+    void this.router.navigate(['/chat', idConversa(anuncio.id, uid)]);
+  }
+
   private async lerAnuncio(anuncioId: string, geracao: number): Promise<void> {
     try {
       const anuncio = await this.anuncios.obter(anuncioId);
@@ -226,6 +277,7 @@ export class DetalhesItemPage {
       }
       this.anuncio.set(anuncio);
       this.falha.set(anuncio ? null : 'inacessivel');
+      void this.lerPedidoPendente(anuncio, geracao);
     } catch (erro) {
       if (geracao !== this.geracaoReal) {
         return;
@@ -237,6 +289,26 @@ export class DetalhesItemPage {
       if (geracao === this.geracaoReal) {
         this.carregandoAnuncio.set(false);
         this.leituraPronta.set(true);
+      }
+    }
+  }
+
+  private async lerPedidoPendente(anuncio: Anuncio | null, geracao: number): Promise<void> {
+    const uid = this.autenticacao.uid();
+    if (!anuncio || !uid || uid === anuncio.proprietarioId) {
+      if (geracao === this.geracaoReal) {
+        this.pedidoPendente.set(false);
+      }
+      return;
+    }
+    try {
+      const aberto = await this.locacoes.temEmAberto(anuncio.id, uid);
+      if (geracao === this.geracaoReal) {
+        this.pedidoPendente.set(aberto);
+      }
+    } catch {
+      if (geracao === this.geracaoReal) {
+        this.pedidoPendente.set(false);
       }
     }
   }

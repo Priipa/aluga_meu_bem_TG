@@ -6,19 +6,31 @@
 
 <ion-content [fullscreen]="true">
   <div class="page-pad">
-    <div class="list">
-      @for (linha of conversas; track linha.item.id) {
-        <a class="row" [routerLink]="['/chat', linha.item.id]">
-          <img [src]="linha.item.owner.avatar" [alt]="linha.item.owner.name" />
-          <div>
-            <h3>{{ linha.item.owner.name }}</h3>
-            <p>{{ linha.ultima.text }}</p>
-          </div>
-          <span>{{ linha.ultima.time }}</span>
-        </a>
-      } @empty {
-        <p>Nenhuma conversa ainda.</p>
+    @switch (estado()) {
+      @case ('carregando') {
+        <p>Carregando conversas...</p>
       }
-    </div>
+      @case ('erro') {
+        <p>Não foi possível carregar as conversas.</p>
+      }
+      @case ('vazio') {
+        <p>Nenhuma conversa ainda. Abra um item e envie uma mensagem ao locador.</p>
+      }
+      @case ('lista') {
+        <div class="list">
+          @for (linha of linhas(); track linha.id) {
+            <a class="row" [routerLink]="['/chat', linha.id]">
+              <div class="avatar-letra" aria-hidden="true">{{ linha.inicial }}</div>
+              <div>
+                <h3>{{ linha.nome }}</h3>
+                <p class="item">{{ linha.titulo }}</p>
+                <p>{{ linha.previa }}</p>
+              </div>
+              <span>{{ linha.horario }}</span>
+            </a>
+          }
+        </div>
+      }
+    }
   </div>
 </ion-content>

@@ -42,6 +42,24 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/anunciar/anunciar.page').then((m) => m.AnunciarPage),
       },
       {
+        path: 'alugueis',
+        canActivate: [guardAutenticado],
+        loadComponent: () =>
+          import('./pages/meus-alugueis/meus-alugueis.page').then((m) => m.MeusAlugueisPage),
+      },
+      {
+        path: 'solicitacoes',
+        canActivate: [guardAutenticado],
+        loadComponent: () =>
+          import('./pages/solicitacoes/solicitacoes.page').then((m) => m.SolicitacoesPage),
+      },
+      {
+        path: 'meus-anuncios',
+        canActivate: [guardAutenticado, guardLocador],
+        loadComponent: () =>
+          import('./pages/meus-anuncios/meus-anuncios.page').then((m) => m.MeusAnunciosPage),
+      },
+      {
         path: 'favoritos',
         canActivate: [guardAutenticado],
         loadComponent: () =>
@@ -65,6 +83,12 @@ export const routes: Routes = [
     path: 'item/:id',
     loadComponent: () =>
       import('./pages/detalhes-item/detalhes-item.page').then((m) => m.DetalhesItemPage),
+  },
+  {
+    path: 'solicitar/:id',
+    canActivate: [guardAutenticado],
+    loadComponent: () =>
+      import('./pages/solicitar-aluguel/solicitar-aluguel.page').then((m) => m.SolicitarAluguelPage),
   },
   {
     path: 'pagamento/:id',

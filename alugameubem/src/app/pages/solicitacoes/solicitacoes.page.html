@@ -1,0 +1,172 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>
+      <span class="marca">Aluga, meu bem!</span>
+      Solicitações
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/tabs/alugueis">Aluguéis</ion-button>
+      @if (ehLocador()) {
+        <ion-button routerLink="/tabs/meus-anuncios">Anúncios</ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <div class="abas" role="tablist">
+      <button type="button" role="tab" [class.on]="aba() === 'recebidas'" (click)="escolherAba('recebidas')">
+        Recebidas
+        @if (pendentesRecebidas()) {
+          <span>{{ pendentesRecebidas() }}</span>
+        }
+      </button>
+      <button type="button" role="tab" [class.on]="aba() === 'enviadas'" (click)="escolherAba('enviadas')">
+        Enviadas
+        @if (enviadas().length) {
+          <span>{{ enviadas().length }}</span>
+        }
+      </button>
+    </div>
+
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+
+    @switch (estado()) {
+      @case ('carregando') {
+        <p class="estado">Carregando solicitações...</p>
+      }
+      @case ('erro') {
+        <p class="estado">Não foi possível carregar as solicitações.</p>
+      }
+      @case ('lista') {
+        @if (visiveis().length === 0) {
+          <p class="estado">
+            @if (aba() === 'recebidas') {
+              Nenhuma solicitação recebida.
+            } @else {
+              Você ainda não enviou solicitações. Abra um item e toque em Solicitar aluguel.
+            }
+          </p>
+        } @else {
+          <div class="lista">
+            @for (pedido of visiveis(); track pedido.id) {
+              <article class="card">
+                <header>
+                  <div class="avatar" aria-hidden="true">{{ inicial(nomeDaLinha(pedido)) }}</div>
+                  <div class="quem">
+                    <strong>{{ nomeDaLinha(pedido) }}</strong>
+                    @if (pedido.status === 'aprovado') {
+                      <p>{{ retirada(pedido.inicioIso) }}</p>
+                    } @else {
+                      <p>{{ aba() === 'recebidas' ? 'Quer alugar seu item' : 'Pedido enviado ao locador' }}</p>
+                    }
+                  </div>
+                  <span
+                    class="selo"
+                    [class.ok]="pedido.status === 'em_andamento' || pedido.status === 'concluido'"
+                    [class.nao]="pedido.status === 'recusado' || pedido.status === 'cancelado'"
+                  >
+                    {{ rotulo(pedido.status) }}
+                  </span>
+                </header>
+
+                <a class="item" [routerLink]="['/item', pedido.anuncioId]">
+                  @if (pedido.capaAnuncio) {
+                    <img [src]="pedido.capaAnuncio" [alt]="pedido.tituloAnuncio" />
+                  }
+                  <div>
+                    <small>{{ pedido.categoriaAnuncio }}</small>
+                    <h3>{{ pedido.tituloAnuncio }}</h3>
+                    <p>
+                      <ion-icon name="calendar-outline"></ion-icon>
+                      {{ periodo(pedido.inicioIso, pedido.fimIso, pedido.dias) }}
+                    </p>
+                  </div>
+                </a>
+
+                @if (pedido.mensagem) {
+                  <div class="recado">
+                    <span>Mensagem {{ aba() === 'recebidas' ? 'do locatário' : 'enviada' }}</span>
+                    <p>“{{ pedido.mensagem }}”</p>
+                  </div>
+                }
+
+                <div class="ganho">
+                  <span>{{ aba() === 'recebidas' ? 'Ganhos estimados' : 'Total' }} ({{ pedido.dias }} {{ pedido.dias === 1 ? 'diária' : 'diárias' }})</span>
+                  <strong>{{ pedido.valorTotal | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</strong>
+                </div>
+
+                @if (aba() === 'recebidas' && pedido.status === 'pendente') {
+                  <div class="acoes">
+                    <button type="button" class="recusar" [disabled]="respondendoId() === pedido.id" (click)="recusar(pedido)">
+                      <ion-icon name="close"></ion-icon>
+                      Recusar
+                    </button>
+                    <button type="button" class="aceitar" [disabled]="respondendoId() === pedido.id" (click)="aceitar(pedido)">
+                      <ion-icon name="checkmark-circle"></ion-icon>
+                      Aceitar pedido
+                    </button>
+                  </div>
+                }
+
+                @if (pedido.status === 'aprovado') {
+                  <div class="ok-box">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <div>
+                      <strong>Aguardando retirada</strong>
+                      <p>Combinem o ponto de encontro pelo chat.</p>
+                    </div>
+                  </div>
+                  @if (aba() === 'recebidas') {
+                    <div class="acoes">
+                      <button type="button" class="chat" (click)="abrirChat(pedido)">
+                        <ion-icon name="chatbubble-outline"></ion-icon>
+                        Chat
+                      </button>
+                      <button type="button" class="aceitar" [disabled]="respondendoId() === pedido.id" (click)="confirmarRetirada(pedido)">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        Confirmar retirada
+                      </button>
+                    </div>
+                  } @else {
+                    <button type="button" class="chat" (click)="abrirAlugueis()">
+                      Gerenciar em meus aluguéis
+                    </button>
+                  }
+                }
+
+                @if (pedido.status === 'em_andamento') {
+                  <div class="ok-box">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <div>
+                      <strong>Item em uso</strong>
+                      <p>Confirme quando a devolução acontecer.</p>
+                    </div>
+                  </div>
+                  @if (aba() === 'recebidas') {
+                    <div class="acoes">
+                      <button type="button" class="chat" (click)="abrirChat(pedido)">
+                        <ion-icon name="chatbubble-outline"></ion-icon>
+                        Chat
+                      </button>
+                      <button type="button" class="aceitar" [disabled]="respondendoId() === pedido.id" (click)="confirmarDevolucao(pedido)">
+                        Confirmar devolução
+                      </button>
+                    </div>
+                  } @else {
+                    <button type="button" class="chat" (click)="abrirAlugueis()">
+                      Gerenciar em meus aluguéis
+                    </button>
+                  }
+                }
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+  </div>
+</ion-content>

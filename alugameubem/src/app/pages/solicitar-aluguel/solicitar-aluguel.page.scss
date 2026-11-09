@@ -1,0 +1,48 @@
+.resumo {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.resumo img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.resumo h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.resumo p {
+  margin: 0;
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+.total {
+  margin: 8px 0 16px;
+  font-size: 15px;
+}
+
+.estado,
+.erro {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.erro {
+  color: var(--amb-danger);
+  font-weight: 600;
+}
+
+.estado {
+  color: var(--amb-muted);
+}

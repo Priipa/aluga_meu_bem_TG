@@ -120,7 +120,7 @@
         <span>Total</span>
         <strong>{{ item.pricePerDay | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
       </div>
-      <ion-button class="btn-pill btn-lime" (click)="rent()">Alugar agora</ion-button>
+      <ion-button class="btn-pill btn-lime" (click)="rent()">Solicitar aluguel</ion-button>
     </div>
   </ion-content>
 } @else if (anuncioReal(); as anuncio) {
@@ -177,7 +177,16 @@
       }
 
       <h2 class="section-title">Locador</h2>
-      <p class="proprietario">{{ anuncio.nomeExibicao }}</p>
+      <div class="owner">
+        <div>
+          <strong>{{ anuncio.nomeExibicao }}</strong>
+        </div>
+        @if (podeContatar()) {
+          <ion-button fill="outline" size="small" class="btn-pill" (click)="contatar()">
+            Enviar mensagem
+          </ion-button>
+        }
+      </div>
 
       @if (anuncio.condicoes.trim()) {
         <h2 class="section-title">Condições de aluguel</h2>
@@ -192,6 +201,15 @@
         <span>Total</span>
         <strong>{{ anuncio.valorDiaria | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }} / dia</strong>
       </div>
+      @if (ehDono()) {
+        <ion-button class="btn-pill btn-outlined" routerLink="/tabs/meus-anuncios">Meu anúncio</ion-button>
+      } @else if (temPedidoPendente()) {
+        <ion-button class="btn-pill btn-outlined" (click)="solicitarAluguel()">Ver meu aluguel</ion-button>
+      } @else if (podeSolicitar()) {
+        <ion-button class="btn-pill btn-lime" (click)="solicitarAluguel()">Solicitar aluguel</ion-button>
+      } @else {
+        <ion-button class="btn-pill btn-outlined" disabled>Indisponível</ion-button>
+      }
     </div>
   </ion-content>
 } @else {

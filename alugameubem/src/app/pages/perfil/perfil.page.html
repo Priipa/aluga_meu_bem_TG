@@ -33,8 +33,13 @@
 
     <section class="grupo">
       <h2 class="section-title">Locação</h2>
+      <div class="acoes">
+        <a class="acao" routerLink="/tabs/alugueis">Meus aluguéis</a>
+        <a class="acao" routerLink="/tabs/solicitacoes">Solicitações</a>
+      </div>
       @if (ehLocador()) {
         <div class="acoes">
+          <a class="acao" routerLink="/tabs/meus-anuncios">Meus anúncios</a>
           <a class="acao" routerLink="/tabs/anunciar">Publicar um item</a>
           <button type="button" class="acao" (click)="abrirConsultaLocador()">
             Termos e condições do locador

@@ -74,6 +74,27 @@ export function anuncioDaLeitura(id: string, dados: Record<string, unknown>): An
   };
 }
 
+export function anunciosComStatus(
+  anuncios: readonly Anuncio[],
+  status: StatusAnuncio,
+): Anuncio[] {
+  return anuncios.filter((anuncio) => anuncio.status === status);
+}
+
+export function disponivelDoStatus(status: StatusAnuncio): boolean {
+  return status === 'ativo';
+}
+
+export function rotuloStatus(status: StatusAnuncio): string {
+  if (status === 'pausado') {
+    return 'Pausado';
+  }
+  if (status === 'arquivado') {
+    return 'Excluído';
+  }
+  return 'Ativo';
+}
+
 /** Categoria e faixa de valor acontecem depois da consulta do condomínio, só no cliente. */
 export function filtrarAnunciosDaHome(
   anuncios: readonly Anuncio[],

@@ -1,0 +1,156 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Meus aluguéis</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/tabs/solicitacoes">Solicitações</ion-button>
+      @if (ehLocador()) {
+        <ion-button routerLink="/tabs/meus-anuncios">Anúncios</ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page-pad">
+    <section class="resumo" aria-label="Resumo">
+      <article>
+        <span>Aluguéis ativos</span>
+        <strong>{{ ativos().length }}</strong>
+        <small>{{ ativos().length === 1 ? 'item com você ou aguardando' : 'itens em andamento' }}</small>
+      </article>
+    </section>
+
+    @if (pendentesRecebidas()) {
+      <a class="aviso-pedidos" routerLink="/tabs/solicitacoes" [queryParams]="{ aba: 'recebidas' }">
+        {{ pendentesRecebidas() }}
+        {{ pendentesRecebidas() === 1 ? 'pedido aguardando sua resposta' : 'pedidos aguardando sua resposta' }}
+      </a>
+    }
+
+    <div class="abas" role="tablist">
+      <button type="button" role="tab" [class.on]="aba() === 'ativos'" (click)="escolherAba('ativos')">
+        Ativos <span>{{ ativos().length }}</span>
+      </button>
+      <button type="button" role="tab" [class.on]="aba() === 'encerrados'" (click)="escolherAba('encerrados')">
+        Encerrados <span>{{ encerrados().length }}</span>
+      </button>
+    </div>
+
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+
+    @switch (estado()) {
+      @case ('carregando') {
+        <p class="estado">Carregando seus aluguéis...</p>
+      }
+      @case ('erro') {
+        <p class="estado">Não foi possível carregar seus aluguéis.</p>
+      }
+      @case ('lista') {
+        @if (visiveis().length === 0) {
+          <p class="estado">
+            @if (aba() === 'ativos') {
+              Você ainda não tem aluguéis ativos. Abra um item e toque em Solicitar aluguel.
+            } @else {
+              Nenhum aluguel encerrado ainda.
+            }
+          </p>
+        } @else {
+          <div class="lista">
+            @for (pedido of visiveis(); track pedido.id) {
+              <article class="card">
+                <header>
+                  <div class="avatar" aria-hidden="true">{{ primeiroNome(pedido.nomeLocador).charAt(0) }}</div>
+                  <div class="quem">
+                    <strong>{{ pedido.nomeLocador }}</strong>
+                    <p>{{ descricao(pedido.status, pedido.nomeLocador) }}</p>
+                  </div>
+                  <span class="selo" [class.ok]="classeSelo(pedido.status) === 'ok'" [class.nao]="classeSelo(pedido.status) === 'nao'">
+                    {{ rotulo(pedido.status) }}
+                  </span>
+                </header>
+
+                <a class="item" [routerLink]="['/item', pedido.anuncioId]">
+                  @if (pedido.capaAnuncio) {
+                    <img [src]="pedido.capaAnuncio" [alt]="pedido.tituloAnuncio" />
+                  }
+                  <div>
+                    <small>{{ pedido.categoriaAnuncio }}</small>
+                    <h3>{{ pedido.tituloAnuncio }}</h3>
+                    <p>
+                      <ion-icon name="calendar-outline"></ion-icon>
+                      {{ periodo(pedido.inicioIso, pedido.fimIso, pedido.dias) }}
+                    </p>
+                  </div>
+                </a>
+
+                <div class="ganho">
+                  <span>Total ({{ pedido.dias }} {{ pedido.dias === 1 ? 'diária' : 'diárias' }})</span>
+                  <strong>{{ pedido.valorTotal | currency: 'BRL' : 'symbol-narrow' : '1.0-0' }}</strong>
+                </div>
+
+                @if (pedido.status === 'pendente') {
+                  <div class="acoes">
+                    <button type="button" class="recusar" [disabled]="alterandoId() === pedido.id" (click)="cancelar(pedido)">
+                      <ion-icon name="close"></ion-icon>
+                      Cancelar pedido
+                    </button>
+                    <a class="detalhe" [routerLink]="['/item', pedido.anuncioId]">Ver item</a>
+                  </div>
+                }
+
+                @if (pedido.status === 'aprovado') {
+                  <div class="ok-box">
+                    <ion-icon name="location-outline"></ion-icon>
+                    <div>
+                      <strong>Aguardando retirada</strong>
+                      <p>Quando pegar o item, confirme aqui.</p>
+                    </div>
+                  </div>
+                  <div class="acoes">
+                    <button type="button" class="chat" (click)="abrirChat(pedido)">
+                      <ion-icon name="chatbubble-outline"></ion-icon>
+                      Chat
+                    </button>
+                    <button type="button" class="aceitar" [disabled]="alterandoId() === pedido.id" (click)="confirmarRetirada(pedido)">
+                      <ion-icon name="checkmark-circle"></ion-icon>
+                      Confirmar retirada
+                    </button>
+                  </div>
+                }
+
+                @if (pedido.status === 'em_andamento') {
+                  <div class="ok-box">
+                    <ion-icon name="bag-handle-outline"></ion-icon>
+                    <div>
+                      <strong>Item com você</strong>
+                      <p>Devolva até o fim do período combinado.</p>
+                    </div>
+                  </div>
+                  <div class="acoes">
+                    <button type="button" class="chat" (click)="abrirChat(pedido)">
+                      <ion-icon name="chatbubble-outline"></ion-icon>
+                      Chat
+                    </button>
+                    <button type="button" class="aceitar" [disabled]="alterandoId() === pedido.id" (click)="confirmarDevolucao(pedido)">
+                      <ion-icon name="return-down-back-outline"></ion-icon>
+                      Confirmar devolução
+                    </button>
+                  </div>
+                }
+
+                @if (pedido.status === 'concluido') {
+                  <button type="button" class="chat" (click)="abrirChat(pedido)">
+                    <ion-icon name="chatbubble-outline"></ion-icon>
+                    Abrir chat com {{ primeiroNome(pedido.nomeLocador) }}
+                  </button>
+                }
+              </article>
+            }
+          </div>
+        }
+      }
+    }
+  </div>
+</ion-content>
